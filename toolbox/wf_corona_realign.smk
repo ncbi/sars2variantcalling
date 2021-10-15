@@ -5,7 +5,7 @@ with open(accessions_file_path, 'r') as f:
         accessions=[line.strip() for line in f.readlines()]
 
 rule all:
-	input: expand("INFO/{acc}.info", acc=accessions), expand("CONSENSUS/{acc}.fasta", acc=accessions), expand("CONSENSUS_BAM/{acc}.bam", acc=accessions), expand("CALL/{acc}.low_cov.bed", acc=accessions), expand("ANN/{acc}.gatk.snpeff.tsv", acc=accessions)
+	input: expand("INFO/{acc}.info", acc=accessions), expand("CONSENSUS/{acc}.fasta", acc=accessions), expand("CONSENSUS_BAM/{acc}.bam", acc=accessions), expand("CALL/{acc}.depth", acc=accessions), expand("ANN/{acc}.gatk.snpeff.tsv", acc=accessions)
 
 rule info:
 	output: "INFO/{acc}.info"
@@ -67,6 +67,17 @@ rule call:
 	output: vcf="CALL/{acc}.gatk.vcf", bam="CALL/{acc}.gatk.bam"
 	shell: """
 gatk HaplotypeCaller -R {ref} -I {input.bam} -O {output.vcf} -bamout {output.bam} --minimum-mapping-quality 10 --ploidy 1
+"""
+
+rule ref_coverage:
+	input: bam=rules.call.output.bam
+	output: depth="CALL/{acc}.depth", depth_bed="CALL/{acc}.depth.bed", no_covearge_bed="CALL/{acc}.no_cov.bed", low_coverage_bed="CALL/{acc}.low_cov.bed", coverage_summary="CALL/{acc}.coverage_summary"
+	shell: """
+samtools depth -aa -d 0 -m 1000000 {input} > {output.depth}
+bedtools genomecov -bga -ibam {input} > {output.depth_bed}
+cat {output.depth_bed} | awk '$4<1' | bedtools merge -i - > {output.no_covearge_bed}
+cat {output.depth_bed} | awk '$4<2' | bedtools merge -i - > {output.low_coverage_bed}
+bedtools summary -i {input} -g <(echo -e "NC_045512.2\t29903") | grep NC_045512.2 | cut -f2,3,7- > {output.coverage_summary}
 """
 
 rule filter_variants:
@@ -170,11 +181,4 @@ rule tsv:
 	output: "ANN/{acc}.gatk.snpeff.tsv"
 	shell: """
 cat {input} | /usr/local/snpEff/4.2/scripts/vcfEffOnePerLine.pl | /panfs/traces01.be-md.ncbi.nlm.nih.gov/sra_review/scratch/zaluninvv/Test/snpEff/snpEff/exec/snpsift extractFields - -s "," -e "." CHROM POS REF ALT {wildcards.acc} "EFF[*].EFFECT" "EFF[*].FUNCLASS" "EFF[*].CODON" "EFF[*].AA" "EFF[*].AA_LEN" "EFF[*].GENE" > {output}
-"""
-
-rule  low_cov:
-	input: rules.call.output.bam
-	output: "CALL/{acc}.low_cov.bed"
-	shell: """
-bedtools genomecov -max 10 -bga -ibam {input} | awk '$4<1' | bedtools merge -i - > {output}
 """
