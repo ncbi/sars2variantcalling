@@ -52,7 +52,7 @@ rule bam:
 	log: "LOGS/{acc}.ref.bam.log"
 	shell: """
 tmpbam=$(mktemp -p BAM)
-( /home/zaluninvv/hisat2-2.1.0/hisat2 --no-spliced-alignment --no-unal -x {ref} -q \\
+( /9home/zaluninvv/hisat2-2.1.0/hisat2 --no-spliced-alignment --no-unal -x {ref} -q \\
 	-1 "TRIMMED/{wildcards.acc}_R1.trimmed.fastq" -2 "TRIMMED/{wildcards.acc}_R2.trimmed.fastq" \\
 	-U "TRIMMED/{wildcards.acc}_R1.trimmed.unpaired.fastq","TRIMMED/{wildcards.acc}_R2.trimmed.unpaired.fastq","TRIMMED/{wildcards.acc}.trimmed.fastq" \\
 	--summary-file BAM/{wildcards.acc}.hisat2.summary --threads {threads} | samtools view -Sh -F 256 - | samtools sort - > $tmpbam) 2>{log} > {output.bam}
@@ -71,13 +71,9 @@ gatk HaplotypeCaller -R {ref} -I {input.bam} -O {output.vcf} -bamout {output.bam
 
 rule ref_coverage:
 	input: bam=rules.call.output.bam
-	output: depth="CALL/{acc}.depth", depth_bed="CALL/{acc}.depth.bed", no_covearge_bed="CALL/{acc}.no_cov.bed", low_coverage_bed="CALL/{acc}.low_cov.bed", coverage_summary="CALL/{acc}.coverage_summary"
+	output: depth="CALL/{acc}.depth"
 	shell: """
 samtools depth -aa -d 0 -m 1000000 {input} > {output.depth}
-bedtools genomecov -bga -ibam {input} > {output.depth_bed}
-cat {output.depth_bed} | awk '$4<1' | bedtools merge -i - > {output.no_covearge_bed}
-cat {output.depth_bed} | awk '$4<2' | bedtools merge -i - > {output.low_coverage_bed}
-bedtools summary -i {input} -g <(echo -e "NC_045512.2\t29903") | grep NC_045512.2 | cut -f2,3,7- > {output.coverage_summary}
 """
 
 rule filter_variants:
