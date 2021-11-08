@@ -61,7 +61,7 @@ tmpbam=$(mktemp {wildcards.acc}.XXX.bam)
 	-1 "{wildcards.acc}/{wildcards.acc}_R1.trimmed.fastq" -2 "{wildcards.acc}/{wildcards.acc}_R2.trimmed.fastq" \\
 	-U "{wildcards.acc}/{wildcards.acc}_R1.trimmed.unpaired.fastq","{wildcards.acc}/{wildcards.acc}_R2.trimmed.unpaired.fastq","{wildcards.acc}/{wildcards.acc}.trimmed.fastq" \\
 	--summary-file {output.summary} --threads {threads} | \\
-	samtools view -Sb - | \\
+	samtools view -Sh -F256 - | \\
 	samtools sort - > $tmpbam) 2>{log.hisat2_log} > {output.bam}
 
 picard AddOrReplaceReadGroups \\
