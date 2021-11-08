@@ -9,6 +9,7 @@ with open(accessions_file_path,'r') as f:
 
 #accessions = ["ERR6168737"]
 # accessions = ["SRR15515163"]
+accessions = ["DRR286925"]
 
 rule all:
     input: expand("{acc}/{acc}.{product}",acc=accessions,product=products)
@@ -60,7 +61,7 @@ tmpbam=$(mktemp {wildcards.acc}.XXX.bam)
 	-1 "{wildcards.acc}/{wildcards.acc}_R1.trimmed.fastq" -2 "{wildcards.acc}/{wildcards.acc}_R2.trimmed.fastq" \\
 	-U "{wildcards.acc}/{wildcards.acc}_R1.trimmed.unpaired.fastq","{wildcards.acc}/{wildcards.acc}_R2.trimmed.unpaired.fastq","{wildcards.acc}/{wildcards.acc}.trimmed.fastq" \\
 	--summary-file {output.summary} --threads {threads} | \\
-	samtools view -Sh - | \\
+	samtools view -Sb - | \\
 	samtools sort - > $tmpbam) 2>{log.hisat2_log} > {output.bam}
 
 picard AddOrReplaceReadGroups \\
