@@ -1,15 +1,15 @@
 ref = config["ref"]
-accessions_file_path = config['accs']
+snpeff_config=config["snpeff_config"]
+vcfEffOnePerLine=config["vcfEffOnePerLine"]
+vcf_validator=config["vcf_validator"]
+
+accessions_file_path = 'accs'
 products = ["consensus.bam", "consensus.coverage", "consensus.depth", "consensus.fa", "consensus.summary", "ref.bam",
-            "ref.depth", "ref.snp_eff.tsv", "ref.snpeff.vcf", "ref.summary", "ref.vcf"]
-# products = filter(lambda product: "ref" in product,products)
+            "ref.depth", "ref.snp_eff.tsv", "ref.snpeff.vcf", "ref.summary", "ref.vcf", "vcfvalidate.done"]
+
 
 with open(accessions_file_path,'r') as f:
     accessions = [line.strip() for line in f.readlines()]
-
-#accessions = ["ERR6168737"]
-# accessions = ["SRR15515163"]
-accessions = ["DRR286925"]
 
 rule all:
     input: expand("{acc}/{acc}.{product}",acc=accessions,product=products)
@@ -38,6 +38,8 @@ if [[ -s {input.R1} || -s {input.R2} ]] ; then
 		{input.R1} {input.R2} \\
 		"{wildcards.acc}/{wildcards.acc}_R1.trimmed.fastq" "{wildcards.acc}/{wildcards.acc}_R1.trimmed.unpaired.fastq" "{wildcards.acc}/{wildcards.acc}_R2.trimmed.fastq" "{wildcards.acc}/{wildcards.acc}_R2.trimmed.unpaired.fastq" \\
 		LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+
+	java -jar /usr/local/trimmomatic/0.33/trimmomatic-0.33.jar SE -phred33 -threads 6 {input.single} {wildcards.acc}/{wildcards.acc}.trimmed.fastq LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
 fi
 
 if [[ -s input.unpaired ]]; then 
@@ -61,7 +63,7 @@ tmpbam=$(mktemp {wildcards.acc}.XXX.bam)
 	-1 "{wildcards.acc}/{wildcards.acc}_R1.trimmed.fastq" -2 "{wildcards.acc}/{wildcards.acc}_R2.trimmed.fastq" \\
 	-U "{wildcards.acc}/{wildcards.acc}_R1.trimmed.unpaired.fastq","{wildcards.acc}/{wildcards.acc}_R2.trimmed.unpaired.fastq","{wildcards.acc}/{wildcards.acc}.trimmed.fastq" \\
 	--summary-file {output.summary} --threads {threads} | \\
-	samtools view -Sh -F256 - | \\
+	samtools view -Sb -F256 - | \\
 	samtools sort - > $tmpbam) 2>{log.hisat2_log} > {output.bam}
 
 picard AddOrReplaceReadGroups \\
@@ -135,9 +137,8 @@ rule snpeff:
     shell: """
 snpeff ann \\
 	-nodownload -formatEff -classic -noStats -noLog -quiet -no-upstream -no-downstream \\
-	-c /home/zaluninvv/snpEff/snpEff.config sars2 -v {input} \\
+	-c {snpeff_config} sars2 -v {input} \\
 	2>{log} > {output}
-# -dataDir /home/zaluninvv/snpEff/data/ 
 """
 
 rule tsv:
@@ -145,14 +146,24 @@ rule tsv:
     output: "{acc}/{acc}.ref.snp_eff.tsv"
     shell: """
 cat {input} | \\
-/usr/local/snpEff/4.2/scripts/vcfEffOnePerLine.pl | \\
-/panfs/traces01.be-md.ncbi.nlm.nih.gov/sra_review/scratch/zaluninvv/Test/snpEff/snpEff/exec/snpsift \\
+{vcfEffOnePerLine} | \\
+snpsift \\
     extractFields - -s "," -e "." \\
     CHROM POS REF ALT \\
     "GEN[0].DP" "GEN[0].AD[1]" \\
     "EFF[*].EFFECT" "EFF[*].FUNCLASS" "EFF[*].CODON" "EFF[*].AA" "EFF[*].AA_LEN" "EFF[*].GENE" > {output}
 """
 
+rule vcfValidate:
+    input: snpvcf = rules.snpeff.output, refvcf = rules.norm.output
+    output: touch("{acc}/{acc}.vcfvalidate.done")
+    log: "LOGS/{acc}.vcf_validate.log"
+    threads: 1
+    shell:
+        """
+            {vcf_validator} -i {input.snpvcf} 2>{log}
+            {vcf_validator} -i {input.refvcf} 2>{log}
+        """
 
 rule consensus:
     input: rules.norm.output
@@ -182,7 +193,7 @@ rule align_consensus:
     shell: """
 hisat2-build {input.consensus} {wildcards.acc}/{wildcards.acc}.index &>/dev/null
 
-( /home/zaluninvv/hisat2-2.1.0/hisat2 --no-spliced-alignment --no-unal -x {ref} -q \\
+( hisat2 --no-spliced-alignment --no-unal -x {ref} -q \\
 	-1 "{wildcards.acc}/{wildcards.acc}_R1.trimmed.fastq" -2 "{wildcards.acc}/{wildcards.acc}_R2.trimmed.fastq" \\
 	-U "{wildcards.acc}/{wildcards.acc}_R1.trimmed.unpaired.fastq","{wildcards.acc}/{wildcards.acc}_R2.trimmed.unpaired.fastq","{wildcards.acc}/{wildcards.acc}.trimmed.fastq" \\
 	--summary-file {output.summary} --threads {threads} | samtools view -Sh -F 256 - | samtools sort - >{output.bam}) 2>{log}
@@ -203,3 +214,4 @@ rule get_depth:
     shell: """
 samtools depth -aa -d 0 -m 0 {input} > {output}
 """
+

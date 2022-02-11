@@ -1,9 +1,14 @@
 #!/bin/bash -eu
 
-ref=${1:-NC_045512.2.fa}
-accs=${2:-accs}
+dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-[[ -f $ref ]]
-[[ -f $acc ]]
+config=${CORONA_REALIGN_CONFIG}
 
-echo snakemake -s corona_realign.smk -j 6 --printshellcmds --config ref=$ref accs=$accs
+if [ -z $config ]; then
+  config=${1:-corona_realign.config.yaml}
+fi
+
+[[ -f $config ]]
+
+snakemake -s $dir/corona_realign.smk -j 6 --printshellcmds --configfile $config
+# --config ref=$ref accs=$accs
