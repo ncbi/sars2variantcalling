@@ -155,14 +155,13 @@ snpsift \\
 """
 
 rule vcfValidate:
-    input: snpvcf = rules.snpeff.output, refvcf = rules.norm.output
+    input: snpvcf = rules.snpeff.output
     output: touch("{acc}/{acc}.vcfvalidate.done")
     log: "LOGS/{acc}.vcf_validate.log"
     threads: 1
     shell:
         """
             {vcf_validator} -i {input.snpvcf} 2>{log}
-            {vcf_validator} -i {input.refvcf} 2>{log}
         """
 
 rule consensus:
