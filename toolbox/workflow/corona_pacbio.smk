@@ -2,9 +2,13 @@ ref = config["ref"]
 snpeff_config=config["snpeff_config"]
 vcfEffOnePerLine=config["vcfEffOnePerLine"]
 vcf_validator=config["vcf_validator"]
+snpEff=config["snpEff"]
+snpsift=config["snpsift"]
 
 accessions_file_path = 'accs'
-products = ["fastq", "trimmed.fastq", "bam_stats", "bam_genomecov", "bam_avg_std_depth", "bam_gaps"]
+products = ["fastq", "trimmed.fastq", "bam_stats", "bam_genomecov",
+            "bam_avg_std_depth", "bam_gaps", "missmatch", "ref.depth", "ref.snp_eff.tsv", "ref.snpeff.vcf",
+            "vcfvalidate.done"]
 
 #products = ["fastq", "consensus.bam", "consensus.coverage", "consensus.depth", "consensus.fa", "consensus.summary", "ref.bam",
 #            "ref.depth", "ref.snp_eff.tsv", "ref.snpeff.vcf", "ref.summary", "ref.vcf", "vcfvalidate.done"]
@@ -40,7 +44,7 @@ rule bam:
     input: rules.trimmed.output
     output: bam="{acc}/{acc}.bam"
     shell: """
-RG="@RG\tID:{wildcards.acc}\tSM:{wildcards.acc}\tLB:{wildcards.acc}\tPL:Pacbio"
+RG="@RG\\tID:{wildcards.acc}\\tSM:{wildcards.acc}\\tLB:{wildcards.acc}\\tPL:Pacbio"
 minimap2 -ax asm20 --MD -R "$RG" {ref} {input} | samtools sort -@ 2 -o {output.bam}
 samtools index {output.bam}
 """
@@ -74,3 +78,112 @@ if ((g_pct > 20)); then
 fi
 """
 
+rule missmatch:
+    input: rules.bam_stats.output
+    output: "{acc}/{acc}.missmatch"
+    shell: """
+mismatches=`cat {input} | grep mismatches | grep "NM fields" | awk '{{print $3}}'`
+bases_mapped=`cat {input}  | grep cigar | grep "more accurate" | awk '{{print $5}}'`
+
+if ((bases_mapped == 0)); then
+    echo -n "no-alignment" 2>&1
+    exit 1
+fi
+
+error_rate=$(( 100 * mismatches / bases_mapped ))
+echo "mismatches=$mismatches, bases_mapped=$bases_mapped, error_rate=$error_rate#"
+
+echo "$mismatches $bases_mapped $error_rate" > {output}
+
+if ((error_rate > 2 )); then
+    echo -n "error-rate-greater-than-2-pct-NOT-CCS-reads" 2>&1
+    exit 1
+fi
+"""
+
+rule call:
+    input: bam=rules.bam.output.bam, missmatch=rules.missmatch.output
+    output: gvcf="{acc}/{acc}.ref.gvcf"
+    log: "LOGS/{acc}.call.log"
+    shell: """
+which gatk
+gatk HaplotypeCaller -R {ref} -I {input.bam} -O {output.gvcf} \
+    --ploidy 1 --minimum-mapping-quality 30 --min-base-quality-score 20 >&{log}
+"""
+
+rule ref_depth:
+    input: rules.call.output.gvcf
+    output: "{acc}/{acc}.ref.depth"
+    shell: """
+vcftools --vcf {input} --extract-FORMAT-info DP --stdout | tail -n +2 > {output}
+"""
+
+rule filter_variants:
+    input: rules.call.output.gvcf
+    output: "{acc}/{acc}.ref.filtered.vcf"
+    log: "LOGS/{acc}.filter_variants.log"
+    shell: """
+gatk VariantFiltration \\
+    -R {ref} \\
+    -V {input} \\
+    -O {output} \\
+    --filter-name "lowAF" \\
+    --filter-expression 'vc.getGenotype("{wildcards.acc}").getAD().1.floatValue() / vc.getGenotype("{wildcards.acc}").getDP() < 0.15' \\
+    --filter-name "lowDP" \\
+    --filter-expression 'vc.getGenotype("{wildcards.acc}").getDP() < 10' \\
+    --filter-name "lowAD" \\
+    --filter-expression 'vc.getGenotype("{wildcards.acc}").getAD().1 < 5'  >&{log}
+"""
+
+rule gatk_pass:
+    input: rules.filter_variants.output
+    output: "{acc}/{acc}.ref.pass.vcf"
+    threads: 1
+    log: "LOGS/{acc}.pass.log"
+    shell: """
+cat {input} | grep ^# > {output}
+cat {input} | grep -v ^# | grep PASS | awk '{if ($10 !~ "1/2:") print }' >> {output}
+grep -vq "^#" {output} || echo "No snps found"
+"""
+
+rule genomecov:
+    input: bam=rules.bam.output.bam
+    output: "{acc}/{acc}.gatk.bam.avg_cov"
+    log: "LOGS/{acc}.genomecov.log"
+    shell: """
+( bedtools genomecov -d -ibam {input} | awk 'BEGIN {{sum=0}}; {{sum+=$3}}; END{{print sum/NR}}' ) 2>{log} > {output}
+"""
+
+rule snpeff:
+    input: rules.filter_variants.output
+    output: "{acc}/{acc}.ref.snpeff.vcf"
+    log: "LOGS/{acc}.snpeff.log"
+    threads: 1
+    shell: """
+{snpEff} ann \\
+	-nodownload -formatEff -classic -noStats -noLog -quiet -no-upstream -no-downstream \\
+	-c {snpeff_config} sars2 -v {input} \\
+	2>{log} > {output}
+"""
+
+rule tsv:
+    input: rules.snpeff.output
+    output: "{acc}/{acc}.ref.snp_eff.tsv"
+    shell: """
+cat {input} | \\
+{vcfEffOnePerLine} | \\
+{snpsift} \\
+    extractFields - -s "," -e "." \\
+    CHROM POS REF ALT \\
+    "GEN[0].DP" "GEN[0].AD[1]" \\
+    "EFF[*].EFFECT" "EFF[*].FUNCLASS" "EFF[*].CODON" "EFF[*].AA" "EFF[*].AA_LEN" "EFF[*].GENE" > {output}
+"""
+
+rule vcfValidate:
+    input: snpvcf = rules.snpeff.output
+    output: touch("{acc}/{acc}.vcfvalidate.done")
+    log: "LOGS/{acc}.vcf_validate.log"
+    threads: 1
+    shell: """
+    {vcf_validator} -i {input.snpvcf} 2>{log}
+"""

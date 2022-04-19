@@ -19,19 +19,24 @@ EOF
     exit 1
 }
 
+extra_params=( '' )
+
 while (( $# > 0 )); do
   case "x$1" in
     x--cfg ) cfg=$2; shift;;
     x--acc ) acc=$2; shift;;
     x--cpu ) cpu=$2; shift;;
+    *      ) extra_params+=( $1 ) ;;
   esac
-  shift
+  shift;
 done
+
+#echo ${extra_params[*]}
 
 if ! [[ -f $cfg ]] && [[ -f "$dir/$cfg" ]]; then
   cfg=$dir/$cfg
 else
-  echo "could not find config neither in . nor in $dir"
+  echo "could not find config $cfg neither in . nor in $dir"
 	usage
 fi
 if [[ -z "$acc" ]]; then
@@ -40,4 +45,4 @@ if [[ -z "$acc" ]]; then
 fi
 
 echo $acc>accs
-snakemake -s $dir/corona_pacbio.smk --cores $cpu --printshellcmds --configfile $cfg $*
+snakemake -s $dir/corona_pacbio.smk --cores $cpu --printshellcmds --configfile $cfg ${extra_params[*]}
