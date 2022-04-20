@@ -35,17 +35,17 @@ sub ConvertSpdiForFile
 
     my ($baseName, $ext, $delim) = ("", "", "");
     if ($inFile =~ /(.+)\.(csv)$/i) {
-	$baseName = $1;
-	$ext = $2;
-	$delim = "\,";
+        $baseName = $1;
+        $ext = $2;
+        $delim = "\,";
     }
     elsif ($inFile =~ /(.+)\.(txt)$/i) {
-	$baseName = $1;
-	$ext = $2;
-	$delim = "\t";
+        $baseName = $1;
+        $ext = $2;
+        $delim = "\t";
     }
     else {
-	die "\nERROR: input file should be either a .csv file or a .txt file.\n";
+        die "\nERROR: input file should be either a .csv file or a .txt file.\n";
     }
 
     my $outFile = $baseName . "_spdi." . $ext;
@@ -59,16 +59,16 @@ sub ConvertSpdiForFile
     my ($posCol, $refCol, $altCol) = (-1, -1, -1);
     my @vars = split /$delim/, $header;
     for my $col (0 .. $#vars) {
-	my $var = $vars[$col];
-	if ($var =~ /^pos/i) {
-	    $posCol = $col;
-	}
-	if ($var =~ /^ref$/i) {
-	    $refCol = $col;
-	}
-	if ($var =~ /^alt$/i) {
-	    $altCol = $col;
-	}
+        my $var = $vars[$col];
+        if ($var =~ /^pos/i) {
+            $posCol = $col;
+        }
+        if ($var =~ /^ref$/i) {
+            $refCol = $col;
+        }
+        if ($var =~ /^alt$/i) {
+            $altCol = $col;
+        }
     }
 
     die "\nERROR: didn't find pos column in file $inFile\n" if ($posCol < 0);
@@ -152,8 +152,8 @@ sub ConvertSpdiForFile
 	    my $oAlt = $lineAlts[$lineNo];
 
 	    if (!$oPos || (!$oRef && !$oAlt)) {
-		push @saveLines, $allLines[$lineNo];
-		next;
+            push @saveLines, $allLines[$lineNo];
+            next;
 	    }
 
 	    my $flag = 0;
@@ -161,25 +161,25 @@ sub ConvertSpdiForFile
 
 	    $wrongMuts{"$oPos\t$oRef\t$oAlt"} = $err if ($err);
 	    unless ($pos) {
-		push @saveLines, $allLines[$lineNo];
-		next;
+            push @saveLines, $allLines[$lineNo];
+            next;
 	    }
 
 	    my @vals = split /$delim/, $allLines[$lineNo];
 	    my $newLine = "";
 	    for my $col (0 .. $#vals) {
-		my $val = $vals[$col];
-		if ($col == $posCol) {
-		    $val = $pos;
-		}
-		elsif ($col == $refCol) {
-		    $val = $ref ? $ref : "-";
-		}
-		elsif ($col == $altCol) {
-		    $val = $alt ? $alt : "-";
-		}
-		$newLine .= $val;
-		$newLine .= "$delim" if ($col < $#vals);
+            my $val = $vals[$col];
+            if ($col == $posCol) {
+                $val = $pos;
+            }
+            elsif ($col == $refCol) {
+                $val = $ref ? $ref : "-";
+            }
+            elsif ($col == $altCol) {
+                $val = $alt ? $alt : "-";
+            }
+            $newLine .= $val;
+            $newLine .= "$delim" if ($col < $#vals);
 	    }
 	    push @saveLines, $newLine;
 

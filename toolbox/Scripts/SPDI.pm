@@ -50,38 +50,38 @@ sub ConvertIndelToSPDI
     my @altSeq = split //, $oAlt;
 
     if ($oPos < 1 || $oPos > $self->{_genome_len}) {
-	$err = "Invalid pos $oPos";
-	return (0, "", "", $err);
+        $err = "Invalid pos $oPos";
+        return (0, "", "", $err);
     }
 
     # Make sure input ref and alt are string of A,T,G,C
     my $refValid = CheckAllelesInSequence(\@refSeq);
     my $altValid = CheckAllelesInSequence(\@altSeq);
     if (!$refValid || !$altValid) {
-	$err .= " Invalid ref '$oRef'." if (!$refValid);
-	$err .= " Invalid alt '$oAlt'." if (!$altValid);
-	$err =~ s/^\s*//;
+        $err .= " Invalid ref '$oRef'." if (!$refValid);
+        $err .= " Invalid alt '$oAlt'." if (!$altValid);
+        $err =~ s/^\s*//;
 
-	return (0, "", "", $err);
+        return (0, "", "", $err);
     }
 
 
     # Make sure ref is correct for the position
     my $refWrong = 0;
     for my $i (0 .. $#refSeq) {
-	my $eRefNt = $self->{_ref_nucs}->[$oPos-1+$i];
-	my $oRefNt = @refSeq > 0 ? $refSeq[$i] : "";
+        my $eRefNt = $self->{_ref_nucs}->[$oPos-1+$i];
+        my $oRefNt = @refSeq > 0 ? $refSeq[$i] : "";
 
-	if ($oRefNt ne $eRefNt) {
-	    $err = "Wrong ref '$oRefNt' at pos $oPos, should be '$eRefNt'.";
-	    return (0, "", "", $err);
-	}
+        if ($oRefNt ne $eRefNt) {
+            $err = "Wrong ref '$oRefNt' at pos $oPos, should be '$eRefNt'.";
+            return (0, "", "", $err);
+        }
     }
 
     # Don't need to convert SNP
     if (@refSeq == 1 && @altSeq == 1) {
-	$err = "SNP";
-	return ($oPos, $oRef, $oAlt, $err);
+        $err = "SNP";
+        return ($oPos, $oRef, $oAlt, $err);
     }
 
     my ($newRef1, $newAlt1, $numRightTrims) = $self->TrimRight($oRef, $oAlt);
@@ -99,28 +99,28 @@ sub ConvertIndelToSPDI
     my $isIns = 0;
     my $bud = "";
     if    (!$newRef && $newAlt) {
-	$isIns = 1;
-	$bud = $newAlt;
+        $isIns = 1;
+        $bud = $newAlt;
     }
     elsif ($newRef && !$newAlt) {
-	$isIns = 0;
-	$bud = $newRef;
+        $isIns = 0;
+        $bud = $newRef;
     }
     elsif ($newRef && $newAlt) {
-	if (length($newRef) == 1 && length($newAlt) == 1) {
-	    $err = "SNP";
-	    print "\nERROR: mutation ref = $oRef alt = $oAlt is a SNP\n" if ($debug);
-	    my $mutPos = $oPos + $numLeftTrims;
-	    return ($mutPos, $newRef, $newAlt, $err);
-	}
-	else {
-	    print "\nERROR: mutation ref = $oRef alt = $oAlt is not valid\n" if ($debug);
-	    return (0, $newRef, $newAlt, "Invalid mutation");
-	}
+        if (length($newRef) == 1 && length($newAlt) == 1) {
+            $err = "SNP";
+            print "\nERROR: mutation ref = $oRef alt = $oAlt is a SNP\n" if ($debug);
+            my $mutPos = $oPos + $numLeftTrims;
+            return ($mutPos, $newRef, $newAlt, $err);
+        }
+        else {
+            print "\nERROR: mutation ref = $oRef alt = $oAlt is not valid\n" if ($debug);
+            return (0, $newRef, $newAlt, "Invalid mutation");
+        }
     }
     elsif (!$newRef && !$newAlt) {
-	print "\nERROR: mutation ref = $oRef alt = $oAlt is not valid: ref = alt\n" if ($debug);
-	return (0, "", "", "Empty mutation");
+        print "\nERROR: mutation ref = $oRef alt = $oAlt is not valid: ref = alt\n" if ($debug);
+        return (0, "", "", "Empty mutation");
     }
 
     my ($mutRef, $mutAlt, $mutPos) = $self->Blossom($oPos+$numLeftTrims, $bud, $debug);
@@ -134,19 +134,19 @@ sub ConvertIndelToSPDI
 
     # COV-601: Modify SPDI to avoid using empty ref and alt
     if (!$outRef && $mutPos > 1) {
-	$mutPos--;
-	my $prevNuc = $self->{_ref_nucs}->[$mutPos-1];
-	$outRef = $prevNuc;
-	$outAlt = "$prevNuc$outAlt";
+        $mutPos--;
+        my $prevNuc = $self->{_ref_nucs}->[$mutPos-1];
+        $outRef = $prevNuc;
+        $outAlt = "$prevNuc$outAlt";
     }
 
     if (!$outAlt) {
-	my $refLen = length($outRef);
-	if ($mutPos && $mutPos + $refLen < $self->{_genome_len}) {
-	    my $nextNuc = $self->{_ref_nucs}->[$mutPos+$refLen-1];
-	    $outRef .= $nextNuc;
-	    $outAlt = $nextNuc;
-	}
+        my $refLen = length($outRef);
+        if ($mutPos && $mutPos + $refLen < $self->{_genome_len}) {
+            my $nextNuc = $self->{_ref_nucs}->[$mutPos+$refLen-1];
+            $outRef .= $nextNuc;
+            $outAlt = $nextNuc;
+        }
     }
 
     my $outPos = $mutPos;
@@ -173,27 +173,27 @@ sub Blossom
     my $pos = $oPos + $budLen;
 
     while (!$done) {
-	for my $i (0 .. $budLen-1) {
-	    if ($pos-1 > $self->{_genome_len}-1) {
-		$done = 1;
-		last;
-	    }
+        for my $i (0 .. $budLen-1) {
+            if ($pos-1 > $self->{_genome_len}-1) {
+                $done = 1;
+                last;
+            }
 
-	    my $seqNt = $self->{_ref_nucs}->[$pos-1];
-	    my $budNt = $budNts[$i];
+            my $seqNt = $self->{_ref_nucs}->[$pos-1];
+            my $budNt = $budNts[$i];
 
-	    print "pos $pos $seqNt : $budNt\n" if ($debug);
-	    if ($seqNt eq $budNt) {
-		$newRef .= $seqNt;
-		$newAlt .= $seqNt;
-	    }
-	    else {
-		$done = 1;
-		last;
-	    }
+            print "pos $pos $seqNt : $budNt\n" if ($debug);
+            if ($seqNt eq $budNt) {
+                $newRef .= $seqNt;
+                $newAlt .= $seqNt;
+            }
+            else {
+                $done = 1;
+                last;
+            }
 
-	    $pos++;
-	}
+            $pos++;
+        }
     }
 
     print "new ref $newRef\n" if ($debug);
@@ -205,27 +205,27 @@ sub Blossom
     $pos = $oPos-1;
 
     while (!$done) {
-	for my $i (0 .. $budLen-1) {
-	    if ($pos < 1) {
-		$done = 1;
-		last;
-	    }
+        for my $i (0 .. $budLen-1) {
+            if ($pos < 1) {
+                $done = 1;
+                last;
+            }
 
-	    my $seqNt = $self->{_ref_nucs}->[$pos-1];
-	    my $budNt = $budNts[$#budNts-$i];
+            my $seqNt = $self->{_ref_nucs}->[$pos-1];
+            my $budNt = $budNts[$#budNts-$i];
 
-	    print "pos $pos $seqNt : $budNt\n" if ($debug);
-	    if ($seqNt eq $budNt) {
-		$newRef = "$seqNt$newRef";
-		$newAlt = "$seqNt$newAlt";
-	    }
-	    else {
-		$done = 1;
-		last;
-	    }
+            print "pos $pos $seqNt : $budNt\n" if ($debug);
+            if ($seqNt eq $budNt) {
+                $newRef = "$seqNt$newRef";
+                $newAlt = "$seqNt$newAlt";
+            }
+            else {
+                $done = 1;
+                last;
+            }
 
-	    $pos--;
-	}
+            $pos--;
+        }
     }
 
     print "\nnew ref $newRef\n" if ($debug);
@@ -314,20 +314,20 @@ sub TrimRight
     my $done = 0;
     my $rPos = 0;
     while (!$done) {
-	if ($rPos > $#refSeq || $rPos > $#altSeq) {
-	    $done = 1;
-	}
-	else {
-	    print "right pos $rPos ref $refSeq[$#refSeq-$rPos] alt $altSeq[$#altSeq-$rPos] done $done\n" if ($debug);
+        if ($rPos > $#refSeq || $rPos > $#altSeq) {
+            $done = 1;
+        }
+        else {
+            print "right pos $rPos ref $refSeq[$#refSeq-$rPos] alt $altSeq[$#altSeq-$rPos] done $done\n" if ($debug);
 
-	    if ($refSeq[$#refSeq-$rPos] ne $altSeq[$#altSeq-$rPos]) {
-		$done = 1;
-		print "done $done quiting\n" if ($debug);
-	    }
-	    else {
-		$rPos++;
-	    }
-	}
+            if ($refSeq[$#refSeq-$rPos] ne $altSeq[$#altSeq-$rPos]) {
+                $done = 1;
+                print "done $done quiting\n" if ($debug);
+            }
+            else {
+                $rPos++;
+            }
+        }
     }
     print "right pos $rPos ref $refSeq[$#refSeq-$rPos] alt $altSeq[$#altSeq-$rPos]\n" if ($debug);
 
