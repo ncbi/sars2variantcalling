@@ -243,16 +243,16 @@ sub ConvertSpdiForFile
     my $numNewInds = keys %allNewIndels;
     print "\nTotal $numNewInds indels are converted\n\n";
     foreach my $ind (sort keys %allNewIndels) {
-	my ($pos, $ref, $alt) = split /\t/, $ind;
-	$ref = "-" unless ($ref);
-	$alt = "-" unless ($alt);
-	my $lineTail = "$pos\t$ref\t$alt";
-	my %oldInds = %{$allNewIndels{$ind}};
-	foreach my $oldInd (keys %oldInds) {
-	    my ($opos, $oref, $oalt) = split /\t/, $oldInd;
-	    my $line = "$opos\t$oref\t$oalt\t$lineTail";
-	    print FILE "$line\n" if ($pos != $opos || $ref ne $oref || $alt ne $oalt);
-	}
+        my ($pos, $ref, $alt) = split /\t/, $ind;
+        $ref = "-" unless ($ref);
+        $alt = "-" unless ($alt);
+        my $lineTail = "$pos\t$ref\t$alt";
+        my %oldInds = %{$allNewIndels{$ind}};
+        foreach my $oldInd (keys %oldInds) {
+            my ($opos, $oref, $oalt) = split /\t/, $oldInd;
+            my $line = "$opos\t$oref\t$oalt\t$lineTail";
+            print FILE "$line\n" if ($pos != $opos || $ref ne $oref || $alt ne $oalt);
+        }
     }
     close FILE;
     print "Summary saved to $sumFile\n";
@@ -260,7 +260,7 @@ sub ConvertSpdiForFile
     open FILE, ">$outFile" or die "Couldn't open $outFile for writing\n";
     print FILE "$header\n";
     for my $line (@saveLines) {
-	print FILE "$line\n";
+        print FILE "$line\n";
     }
     close FILE;
 

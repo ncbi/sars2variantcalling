@@ -1,15 +1,8 @@
-import os
-import subprocess
 import argparse
 import logging.handlers
 from logging import _nameToLevel
-from typing import Dict, Tuple
-from lxml.builder import E
-from lxml import etree
-from lxml.etree import Element
-from xml.sax.saxutils import escape
-import itertools
-import re
+from typing import Dict
+import json
 
 """
 SPDI normalization of indels  
@@ -45,7 +38,7 @@ class SPDI:
         self.ref_nucs = ''.join(self.ref)
         self.genome_length = len(self.ref_nucs)
 
-        logger and logger.info(self.ref_nucs)
+        logger and logger.debug(self.ref_nucs)
 
         return self
 
@@ -241,19 +234,67 @@ def run(_input: Dict, _output: Dict, _config: Dict, _rule: Dict) -> int:
     :return:
     """
 
-    with open(_input["vcf"], 'rt') as _i_vcf, open(_output["vcf"], 'wt') as _o_vcf:
-        for _line in _i_vcf:
-            print(_line)
+    with VCF(_input["vcf"]) as vcf, SPDI(_input["ref"]) as spdi:
+        with open(_output["vcf"], 'wt') as o_vcf, open(_output["summary"], 'wt') as o_sum:
+            for h in vcf.header:
+                o_vcf.write(h)
+                o_vcf.write('\n')
+            unique_positions = set()
+            converted = 0
+            failed = 0
+            left_shift = 0
+            for v in vcf.variations:
+                pos = int(v[VCF.I_POS])
+                ref = v[VCF.I_REF].replace('-', '')
+                alt = v[VCF.I_ALT].replace('-', '')
+
+                unique_positions.add(pos)
+
+                if len(ref) != 1 or len(alt) != 1:
+                    n_pos, n_ref, n_alt, err = spdi.convert_indel_to_SPDI(pos, ref, alt)
+                    if n_pos:
+                        v[VCF.I_POS] = str(n_pos)
+                        v[VCF.I_REF] = n_ref
+                        v[VCF.I_ALT] = n_alt
+                        message = f", message '{err}'" if err else ''
+                        shift = ''
+                        if pos > n_pos:
+                            left_shift += 1
+                            shift = '!'
+                        o_sum.write(f"converted: {pos} -> {n_pos}{shift}, {ref} -> {n_ref}, {alt} -> {n_alt}{message}\n")
+                        converted += 1
+                    else:
+                        o_sum.write(f"failed to convert: {pos}, {ref}, {alt}, message {err}\n")
+                        failed += 1
+
+                o_vcf.write('\t'.join(v))
+                o_vcf.write('\n')
+
+            print(json.dumps({"total-variants": len(vcf.variations),
+                              "unique-positions": len(unique_positions),
+                              "converted": converted,
+                              "failed": failed,
+                              "left-shifts": left_shift
+                              }), end='')
+
     return 0
 
 
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--r', help='path to reference sequence fasta file', required=True)
-    parser.add_argument('--i', help='path to input VCF file', required=True)
-    parser.add_argument('--o', help='path to output VCF file', required=True)
-    parser.add_argument('--s', help='path to output summary file', required=True)
+    parser.add_argument('--r',
+                        help='path to reference sequence fasta file',
+                        required=True)
+    parser.add_argument('--i',
+                        help='path to input VCF file',
+                        required=True)
+    parser.add_argument('--o',
+                        help='path to output VCF file',
+                        required=True)
+    parser.add_argument('--s',
+                        help='path to output summary file',
+                        required=True)
 
     parser.add_argument('--log-level', help='log level', choices=list(_nameToLevel.keys()),
                         default='INFO')
@@ -264,10 +305,11 @@ def main():
                         format='%(asctime)s.%(msecs)03d %(module)s..%(funcName)s [%(levelname)s] %(message)s',
                         datefmt='%m-%d-%Y %H:%M:%S')
 
-    with VCF(args.i) as vcf, SPDI(args.r) as spdi:
-        for variation in vcf.variations:
-            print(variation)
+    run(_input={"ref": args.r, "vcf": args.i},
+        _output={"vcf": args.o, "summary": args.s},
+        _config={}, _rule={})
 
 
 if __name__ == '__main__':
+    # for testing purposes
     main()

@@ -1,15 +1,6 @@
-import os
-import subprocess
 import argparse
 import logging.handlers
 from logging import _nameToLevel
-from typing import Dict, Tuple
-from lxml.builder import E
-from lxml import etree
-from lxml.etree import Element
-from xml.sax.saxutils import escape
-import itertools
-import re
 
 from SPDI import SPDI
 
