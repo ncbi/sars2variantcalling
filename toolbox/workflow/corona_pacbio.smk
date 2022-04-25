@@ -68,11 +68,12 @@ rule gaps:
     input: rules.genome_cov.output.g_cov
     output: "{acc}/{acc}.bam_gaps"
     shell: """
-g=$( cat {input} | awk '{{if($4 == 0) sum += ($3-$2) }} END {{print sum}}' )
+g=$( cat {input} | awk '{{if($4 == 0) {{sum += ($3-$2)}} else {{sum += 0}} }} END {{print sum}}' )
 g_pct=$(( 100 * $g / 29903 ))
 echo "gaps = $g, g_pct = $g_pct for run {wildcards.acc} ....."
 echo "$g $g_pct" >> {output}
 if ((g_pct > 20)); then
+    touch low_genome_coverage_gaps_20pct_plus
     echo -n "not-enough-coverage" 1>&2
     exit 1
 fi
@@ -96,17 +97,18 @@ echo "mismatches=$mismatches, bases_mapped=$bases_mapped, error_rate=$error_rate
 echo "$mismatches $bases_mapped $error_rate" > {output}
 
 if ((error_rate > 2 )); then
+    touch error_rate_gt_2pct_NOT_CCS_reads
     echo -n "error-rate-greater-than-2-pct-NOT-CCS-reads" 2>&1
     exit 1
 fi
 """
 
 rule call:
-    input: bam=rules.bam.output.bam, missmatch=rules.missmatch.output
+    input: bam=rules.bam.output.bam, missmatch=rules.missmatch.output, gap=rules.gaps.output
     output: gvcf="{acc}/{acc}.ref.gvcf"
     log: "LOGS/{acc}.call.log"
     shell: """
-which gatk
+
 gatk HaplotypeCaller -R {ref} -I {input.bam} -O {output.gvcf} \
     --ploidy 1 --minimum-mapping-quality 30 --min-base-quality-score 20 >&{log}
 """
