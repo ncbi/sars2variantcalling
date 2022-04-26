@@ -4,6 +4,7 @@ vcfEffOnePerLine=config["vcfEffOnePerLine"]
 vcf_validator=config["vcf_validator"]
 snpEff=config["snpEff"]
 snpsift=config["snpsift"]
+gatk=config["gatk"]
 
 accessions_file_path = 'accs'
 products = ["fastq", "trimmed.fastq", "bam_stats", "bam_genomecov",
@@ -105,12 +106,13 @@ fi
 
 rule call:
     input: bam=rules.bam.output.bam, missmatch=rules.missmatch.output, gap=rules.gaps.output
-    output: gvcf="{acc}/{acc}.ref.gvcf"
+    output: gvcf="{acc}/{acc}.ref.gatk.vcf"
     log: "LOGS/{acc}.call.log"
+    threads: 6
     shell: """
 
-gatk HaplotypeCaller -R {ref} -I {input.bam} -O {output.gvcf} \
-    --ploidy 1 --minimum-mapping-quality 30 --min-base-quality-score 20 >&{log}
+{gatk} HaplotypeCaller -R {ref} -I {input.bam} -O {output.gvcf} \
+    --ploidy 1 --minimum-mapping-quality 30 --min-base-quality-score 20
 """
 
 rule ref_depth:
@@ -125,16 +127,16 @@ rule filter_variants:
     output: "{acc}/{acc}.ref.filtered.vcf"
     log: "LOGS/{acc}.filter_variants.log"
     shell: """
-gatk VariantFiltration \\
+{gatk} VariantFiltration \\
     -R {ref} \\
     -V {input} \\
     -O {output} \\
     --filter-name "lowAF" \\
-    --filter-expression 'vc.getGenotype("{wildcards.acc}").getAD().1.floatValue() / vc.getGenotype("{wildcards.acc}").getDP() < 0.15' \\
+    --filter-expression 'vc.getGenotype("'{wildcards.acc}'").getAD().1.floatValue() / vc.getGenotype("'{wildcards.acc}'").getDP() < 0.15' \\
     --filter-name "lowDP" \\
-    --filter-expression 'vc.getGenotype("{wildcards.acc}").getDP() < 10' \\
+    --filter-expression 'vc.getGenotype("'{wildcards.acc}'").getDP() < 10' \\
     --filter-name "lowAD" \\
-    --filter-expression 'vc.getGenotype("{wildcards.acc}").getAD().1 < 5'  >&{log}
+    --filter-expression 'vc.getGenotype("'{wildcards.acc}'").getAD().1 < 5'
 """
 
 rule gatk_pass:
