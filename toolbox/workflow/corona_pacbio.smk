@@ -74,7 +74,7 @@ g_pct=$(( 100 * $g / 29903 ))
 echo "gaps = $g, g_pct = $g_pct for run {wildcards.acc} ....."
 echo "$g $g_pct" >> {output}
 if ((g_pct > 20)); then
-    touch low_genome_coverage_gaps_20pct_plus
+    touch {wildcards.acc}/low_genome_coverage_gaps_20pct_plus
     echo -n "not-enough-coverage" 1>&2
     exit 1
 fi
@@ -97,8 +97,8 @@ echo "mismatches=$mismatches, bases_mapped=$bases_mapped, error_rate=$error_rate
 
 echo "$mismatches $bases_mapped $error_rate" > {output}
 
-if ((error_rate > 2 )); then
-    touch error_rate_gt_2pct_NOT_CCS_reads
+if ((error_rate >= 2 )); then
+    touch {wildcards.acc}/error_rate_gt_2pct_NOT_CCS_reads
     echo -n "error-rate-greater-than-2-pct-NOT-CCS-reads" 2>&1
     exit 1
 fi
@@ -159,7 +159,7 @@ rule genomecov:
 """
 
 rule snpeff:
-    input: rules.filter_variants.output
+    input: rules.gatk_pass.output
     output: "{acc}/{acc}.ref.snpeff.vcf"
     log: "LOGS/{acc}.snpeff.log"
     threads: 1
