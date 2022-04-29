@@ -1,4 +1,8 @@
+import sys
+import os
 
+args = sys.argv
+toolbox_location = os.path.dirname(os.path.dirname(args[args.index("-s") + 1]))
 
 ref = config["ref"]
 snpeff_config = config["snpeff_config"]
@@ -57,8 +61,17 @@ rule call:
         -o {wildcards.acc}/{wildcards.acc}.vcf {input} 2> {log}
     """
 
-rule snpeff:
+rule spdi:
     input: rules.call.output.vcf
+    output: vcf="{acc}/{acc}.ref.spdi.vcf", summary="{acc}/{acc}.ref.spdi.summary"
+    log: "LOGS/{acc}.spdi.log"
+    threads: 1
+    shell: """
+python3 {toolbox_location}/rules/common/SPDI.py --r {ref} --i {input} --o {output.vcf} --s {output.summary}
+"""
+
+rule snpeff:
+    input: rules.spdi.output.vcf
     output: "{acc}/{acc}.snpEff_summary.genes.txt", "{acc}/{acc}.snpEff_summary.html",
             annoVCF = "{acc}/{acc}.annotated.vcf"
     log: "{acc}/LOGS/{acc}.snpeff.log"

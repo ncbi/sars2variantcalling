@@ -1,3 +1,9 @@
+import sys
+import os
+
+args = sys.argv
+toolbox_location = os.path.dirname(os.path.dirname(args[args.index("-s") + 1]))
+
 ref = config["ref"]
 snpeff_config=config["snpeff_config"]
 vcfEffOnePerLine=config["vcfEffOnePerLine"]
@@ -10,9 +16,6 @@ accessions_file_path = 'accs'
 products = ["fastq", "trimmed.fastq", "bam_stats", "bam_genomecov",
             "bam_avg_std_depth", "bam_gaps", "missmatch", "ref.depth", "ref.snp_eff.tsv", "ref.snpeff.vcf",
             "vcfvalidate.done"]
-
-#products = ["fastq", "consensus.bam", "consensus.coverage", "consensus.depth", "consensus.fa", "consensus.summary", "ref.bam",
-#            "ref.depth", "ref.snp_eff.tsv", "ref.snpeff.vcf", "ref.summary", "ref.vcf", "vcfvalidate.done"]
 
 with open(accessions_file_path,'r') as f:
     accessions = [line.strip() for line in f.readlines()]
@@ -146,7 +149,7 @@ rule gatk_pass:
     log: "LOGS/{acc}.pass.log"
     shell: """
 cat {input} | grep ^# > {output}
-cat {input} | grep -v ^# | grep PASS | awk '{if ($10 !~ "1/2:") print }' >> {output}
+cat {input} | grep -v ^# | grep PASS | awk '{{if ($10 !~ "1/2:") print }}' >> {output}
 grep -vq "^#" {output} || echo "No snps found"
 """
 
@@ -158,8 +161,17 @@ rule genomecov:
 ( bedtools genomecov -d -ibam {input} | awk 'BEGIN {{sum=0}}; {{sum+=$3}}; END{{print sum/NR}}' ) 2>{log} > {output}
 """
 
-rule snpeff:
+rule spdi:
     input: rules.gatk_pass.output
+    output: vcf="{acc}/{acc}.ref.spdi.vcf", summary="{acc}/{acc}.ref.spdi.summary"
+    log: "LOGS/{acc}.spdi.log"
+    threads: 1
+    shell: """
+python3 {toolbox_location}/rules/common/SPDI.py --r {ref} --i {input} --o {output.vcf} --s {output.summary}
+"""
+
+rule snpeff:
+    input: rules.spdi.output.vcf
     output: "{acc}/{acc}.ref.snpeff.vcf"
     log: "LOGS/{acc}.snpeff.log"
     threads: 1
