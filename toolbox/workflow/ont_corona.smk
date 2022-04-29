@@ -1,4 +1,9 @@
 import json
+import sys
+import os
+
+args = sys.argv
+toolbox_location = os.path.dirname(os.path.dirname(args[args.index("-s") + 1]))
 
 products = ["filtered_fq", "initial.consensus.fa", "initial.avg_depth", "final.consensus.fa", "mummer.delta",
             "delta.snps", "delta.snps.vcf", "vcf"]
@@ -216,4 +221,13 @@ site3=$( cat {output.vcf}.tmp | awk '{{if ($2 == 28881 || $2 == 28882 || $2 == 2
 if [[ $site3 -eq 3 ]]; then
     cat {output.vcf}.tmp | awk '{{if ($2 == 28881 || $2 == 28882 || $2 == 28883 ) print }}' >> {output.vcf}
 fi
+"""
+
+rule spdi:
+    input: rules.nano_annot.output.vcf
+    output: vcf="{acc}/{acc}.ref.spdi.vcf", summary="{acc}/{acc}.ref.spdi.summary"
+    log: "LOGS/{acc}.spdi.log"
+    threads: 1
+    shell: """
+python3 {toolbox_location}/rules/common/SPDI.py --r {ref} --i {input} --o {output.vcf} --s {output.summary}
 """
