@@ -1,6 +1,7 @@
 import argparse
 import logging.handlers
 import sys
+import os
 from logging import _nameToLevel
 from typing import Dict
 import json
@@ -107,6 +108,7 @@ class VCF:
         self.format = collections.namedtuple('format', ' '.join([c for c in self.locations[0].format.split(':')]))
         # apparently INFO is not consistent thus cannot use named tuple
 
+
 input_description = ('vcf:path', 'coverage:path')
 output_description = ('vcf:path', )
 
@@ -139,7 +141,8 @@ def run(_input: Dict, _output: Dict, _config: Dict, _rule: Dict) -> int:
                 dep = vcf.get_depth(v.pos)
                 dep_min_next10bps = vcf.get_min_depth_4_window(pos_d)
 
-                if v.alt != '*' and dep_min_next10bps >= 10 \
+                if v.alt != '*' and r.filter == 'PASS' \
+                        and dep_min_next10bps >= 10 \
                         and dp_ori / DP_unfilt >= 0.5 \
                         and dep / dp_ori >= 0.5 \
                         and ad_alt / DP_unfilt >= 0.15 \

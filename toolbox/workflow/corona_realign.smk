@@ -37,7 +37,7 @@ rule trimmed:
     input: R1=rules.fastq_dump.output.R1,R2=rules.fastq_dump.output.R2,single=rules.fastq_dump.output.single,
     output: "{acc}/{acc}_R1.trimmed.fastq","{acc}/{acc}_R1.trimmed.unpaired.fastq","{acc}/{acc}_R2.trimmed.fastq","{acc}/{acc}_R2.trimmed.unpaired.fastq","{acc}/{acc}.trimmed.fastq"
     threads: 6
-    log: "LOGS/{acc}.trimmed.log"
+    log: "{acc}/LOGS/{acc}.trimmed.log"
     shell: """
 if [[ -s {input.R1} || -s {input.R2} ]] ; then 
 	java -jar /usr/local/trimmomatic/0.33/trimmomatic-0.33.jar PE -phred33 -threads {threads} -trimlog {log} \\
@@ -48,9 +48,9 @@ if [[ -s {input.R1} || -s {input.R2} ]] ; then
 	java -jar /usr/local/trimmomatic/0.33/trimmomatic-0.33.jar SE -phred33 -threads 6 {input.single} {wildcards.acc}/{wildcards.acc}.trimmed.fastq LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
 fi
 
-if [[ -s input.unpaired ]]; then 
+if [[ -s {input.single} ]]; then
 	java -jar /usr/local/trimmomatic/0.33/trimmomatic-0.33.jar SE -phred33 -threads {threads} \\
-		-trimlog {log} input.single \\ 
+		-trimlog {log} {input.single} \\
 		"{wildcards.acc}/{wildcards.acc}.trimmed.fastq" \\
 		LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
 fi
@@ -61,8 +61,8 @@ touch {output}
 rule bam:
     input: rules.trimmed.output
     output: bam="{acc}/{acc}.ref.bam",bai="{acc}/{acc}.ref.bam.bai",summary="{acc}/{acc}.ref.summary"
-    threads: 6
-    log: hisat2_log="LOGS/{acc}.hisat2_bam.log",picard_log="LOGS/{acc}.picard_add_groups.log"
+    threads: 2
+    log: hisat2_log="{acc}/LOGS/{acc}.hisat2_bam.log",picard_log="{acc}/LOGS/{acc}.picard_add_groups.log"
     shell: """
 tmpbam=$(mktemp {wildcards.acc}.XXX.bam)
 ( hisat2 --no-spliced-alignment --no-unal -x {ref} -q \\
@@ -82,7 +82,7 @@ rm $tmpbam
 rule call:
     input: bam=rules.bam.output.bam
     output: gvcf="{acc}/{acc}.ref.gvcf"
-    log: "LOGS/{acc}.call.log"
+    log: "{acc}/{acc}/LOGS/{acc}.call.log"
     shell: """
 gatk HaplotypeCaller -R {ref} -I {input.bam} -O {output.gvcf} --minimum-mapping-quality 10 --ploidy 2 -ERC BP_RESOLUTION >&{log}
 """
@@ -94,30 +94,39 @@ rule ref_depth:
 vcftools --vcf {input} --extract-FORMAT-info DP --stdout | tail -n +2 > {output}
 """
 
-rule filter_variants:
+rule gatk_genotype:
     input: rules.call.output.gvcf
-    output: "{acc}/{acc}.ref.filtered.vcf"
-    log: "LOGS/{acc}.filter_variants.log"
+    output: "{acc}/{acc}.ref.genotype.vcf"
+    log: "{acc}/LOGS/{acc}.genotype.log"
     shell: """
-tempvcf=$(mktemp {wildcards.acc}.XXX.vcf)
-gatk GenotypeGVCFs  -R {ref} -V {input} -O tempvcf
+gatk GenotypeGVCFs -R {ref} -V {input} -O {output} &>{log}
+"""
 
-gatk VariantFiltration \
-    -R {ref} \
-    -V tempvcf \
-    -O {output} \
+rule filter_variants:
+    input: rules.gatk_genotype.output
+    output: "{acc}/{acc}.ref.filtered.vcf"
+    log: "{acc}/LOGS/{acc}.filter_variants.log"
+    shell: """
+gatk VariantFiltration -R {ref} -V {input} -O {output} \
     --filter-name "lowAF" \
     --filter-expression 'vc.getGenotype("{wildcards.acc}").getAD().1.floatValue() / vc.getGenotype("{wildcards.acc}").getDP() < 0.15' \
     --filter-name "lowDP" \
-    --filter-expression 'vc.getGenotype("{wildcards.acc}").getDP() < 50' >&{log}
-rm $tempvcf
+    --filter-expression 'vc.getGenotype("{wildcards.acc}").getDP() < 50' \
+    --filter-name "lowAD10" \
+    --filter-expression 'vc.getGenotype("%(input.acc)s").getAD().1 < 10' \
+    --filter-name "lowQUAL" \
+    --filter-expression 'QUAL < 100' \
+    --filter-name "genomeEnd" \
+    --filter-expression 'POS > 29850' \
+    --filter-name "likeVQSR" \
+    --filter-expression 'FS < 60.0 && QD >= 2.0 && ReadPosRankSum >= 4.0 && SOR < 4.0' &>{log}
 """
 
 rule norm:
     input: rules.filter_variants.output
     output: "{acc}/{acc}.ref.vcf"
     threads: 1
-    log: "LOGS/{acc}.norm.log"
+    log: "{acc}/LOGS/{acc}.norm.log"
     shell: """
 ( gatk LeftAlignAndTrimVariants --verbosity ERROR --split-multi-allelics --QUIET \
     -R {ref} \
@@ -127,18 +136,36 @@ rule norm:
 grep -vq "^#" {output} || echo "No snps found"
 """
 
-rule genomecov:
-    input: bam="{acc}/{acc}.ref.bam"
-    output: "{acc}/{acc}.gatk.bam.avg_cov"
-    log: "LOGS/{acc}.genomecov.log"
+rule genomecov_n_stats:
+    input: bam=rules.bam.output.bam
+    output: coverage="{acc}/{acc}.ref.bam.genomecov", stats="{acc}/{acc}.ref.bam.avg_cov"
+    log: "{acc}/LOGS/{acc}.genomecov.log"
     shell: """
-( bedtools genomecov -d -ibam {input} | awk 'BEGIN {{sum=0}}; {{sum+=$3}}; END{{print sum/NR}}' ) 2>{log} > {output}
+bedtools genomecov -d -g {ref} -ibam {input.bam} > {output.coverage}
+
+stats=($( awk 'BEGIN{{gaps=0;sum=0;}}{{sum+=$3;sumsq+=$3*$3;if($3==0){{gaps+=1}}}}END{{print sum/NR, sqrt(sumsq/NR - (sum/NR)**2), gaps}}' {output.coverage} ))
+
+sz=$( awk '/^[^>]/{{l+=length($0)}}END{{print l}}' {ref} )
+
+g=${{stats[2]}}
+g_pct=$(( 100 * $g / $sz ))
+
+echo "{{\\"cov_avg\\": ${{stats[0]}}, \\"cov_std\\": ${{stats[1]}}, \\"gaps\\": $g, \\"gaps_pct\\": $g_pct}}" > {output.stats}
+"""
+
+rule custom_vcf_filter:
+    input: vcf=rules.norm.output, coverage=rules.genomecov_n_stats.output.coverage
+    output: vcf="{acc}/{acc}.ref.custom_filtered.vcf"
+    log: "{acc}/LOGS/{acc}.custom_filter.log"
+    threads: 1
+    shell: """
+python3 {toolbox_location}/rules/corona-realign-v2/custom_vcf_filter.py --c {input.coverage} --i {input.vcf} --o {output.vcf} 2> {log}
 """
 
 rule spdi:
-    input: rules.norm.output
+    input: rules.custom_vcf_filter.output.vcf
     output: vcf="{acc}/{acc}.ref.spdi.vcf", summary="{acc}/{acc}.ref.spdi.summary"
-    log: "LOGS/{acc}.spdi.log"
+    log: "{acc}/LOGS/{acc}.spdi.log"
     threads: 1
     shell: """
 python3 {toolbox_location}/rules/common/SPDI.py --r {ref} --i {input} --o {output.vcf} --s {output.summary}
@@ -147,7 +174,7 @@ python3 {toolbox_location}/rules/common/SPDI.py --r {ref} --i {input} --o {outpu
 rule snpeff:
     input: rules.spdi.output.vcf
     output: "{acc}/{acc}.ref.snpeff.vcf"
-    log: "LOGS/{acc}.snpeff.log"
+    log: "{acc}/LOGS/{acc}.snpeff.log"
     threads: 1
     shell: """
 snpeff ann \\
@@ -172,17 +199,16 @@ snpsift \\
 rule vcfValidate:
     input: snpvcf = rules.snpeff.output
     output: touch("{acc}/{acc}.vcfvalidate.done")
-    log: "LOGS/{acc}.vcf_validate.log"
+    log: "{acc}/LOGS/{acc}.vcf_validate.log"
     threads: 1
-    shell:
-        """
-            {vcf_validator} -i {input.snpvcf} 2>{log}
-        """
+    shell:"""
+    {vcf_validator} -i {input.snpvcf} 2>{log}
+"""
 
 rule consensus:
     input: rules.norm.output
     output: "{acc}/{acc}.consensus.fa"
-    log: "LOGS/{acc}.consensus.log"
+    log: "{acc}/LOGS/{acc}.consensus.log"
     threads: 1
     shell: """
 if ! bcftools view {input} -Oz -o {wildcards.acc}/{wildcards.acc}.vcf.gz; then
@@ -203,7 +229,7 @@ rule align_consensus:
     input: fastq=rules.trimmed.output,consensus=rules.consensus.output
     output: bam="{acc}/{acc}.consensus.bam",bai="{acc}/{acc}.consensus.bam.bai", summary="{acc}/{acc}.consensus.summary"
     threads: 6
-    log: "LOGS/{acc}.ref.bam.log"
+    log: "{acc}/LOGS/{acc}.ref.bam.log"
     shell: """
 hisat2-build {input.consensus} {wildcards.acc}/{wildcards.acc}.index &>/dev/null
 
