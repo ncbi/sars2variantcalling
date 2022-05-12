@@ -169,14 +169,15 @@ def run(_input: Dict, _output: Dict, _config: Dict, _rule: Dict) -> int:
                         filters.append('lowCov')
                     dropouts[';'.join(sorted(filters))] += 1
 
-    if not snps:
-        sys.stderr.write('no-SNPs')
-        return 1
-
     print(json.dumps({'passed': snps,
                       'filtered': filtered,
                       'filtered_rate': round(filtered*100/(filtered + snps), 2),
                       'filters': dropouts}), end='')
+
+    if not snps:
+        sys.stderr.write('no-SNPs')
+        return 1
+
     return 0
 
 
