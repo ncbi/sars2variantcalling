@@ -57,12 +57,14 @@ class VCF:
                 pair.append(True)
             return pair
         for loc in self.locations:
+            format_def = loc[8].split(':')
             yield self.row._make([int(loc.pos),
                                   loc.ref,
                                   loc.alt,
                                   loc.qual,
                                   dict([_map(a.split('=')) for a in loc.info.split(';')]),
-                                  [self.format._make(f.split(':')) for f in loc[9:]]]), loc
+                                  [dict(zip(format_def, f.split(':'))) for f in loc[9:]]
+                                 ]), loc
 
     def get_min_depth_4_window(self, pos, window = 10):
         return self.depth[pos - 1:pos + window - 1].min()
@@ -104,10 +106,6 @@ class VCF:
                 else:
                     self.locations.append(self.columns._make(l.rstrip().split('\t')))
 
-        # get first line to define FORMAT tuple
-        self.format = collections.namedtuple('format', ' '.join([c for c in self.locations[0].format.split(':')]))
-        # apparently INFO is not consistent thus cannot use named tuple
-
 
 input_description = ('vcf:path', 'coverage:path')
 output_description = ('vcf:path', )
@@ -123,15 +121,17 @@ def run(_input: Dict, _output: Dict, _config: Dict, _rule: Dict) -> int:
     """
 
     snps = 0
+    filtered = 0
+    dropouts = collections.defaultdict(int)
     with VCF(_input["vcf"], _input["coverage"]) as vcf:
         with open(_output["vcf"], 'wt') as o_vcf:
             for h in vcf.header:
                 o_vcf.write(h)
                 o_vcf.write('\n')
             for v, r in vcf.parse():
-                ad_alt = int(v.formats[0].AD.split(',')[1]) #  for ALT allele counts from FORMAT field
-                DP_unfilt = int(v.info['DP'])               #  for DP from INFO field
-                dp_ori = int(v.formats[0].DP)               #  DP from FORMAT
+                ad_alt = int(v.formats[0]['AD'].split(',')[1])  # for ALT allele counts from FORMAT field
+                DP_unfilt = int(v.info['DP'])                   # for DP from INFO field
+                dp_ori = int(v.formats[0]['DP'])                # DP from FORMAT
 
                 del_sz = len(v.ref) - len(v.alt)
                 if del_sz > 0:
@@ -150,16 +150,33 @@ def run(_input: Dict, _output: Dict, _config: Dict, _rule: Dict) -> int:
                     o_vcf.write('\t'.join(r))
                     o_vcf.write('\n')
                     snps += 1
-                elif logger:
-                    logger.warning(f"filtered {v}")
-                    logger.warning(f"\tdep_min_next10bps >= 10 {dep_min_next10bps >= 10}, pos_d = {pos_d}, depth = {vcf.get_depth_window(pos_d)}")
-                    logger.warning(f"\tdp_ori / DP_unfilt >= 0.5 {dp_ori / DP_unfilt >= 0.5}")
-                    logger.warning(f"\tdep / dp_ori >= 0.5 {dep / dp_ori >= 0.5}")
-                    logger.warning(f"\tad_alt / DP_unfilt >= 0.15 {ad_alt / DP_unfilt >= 0.15}")
-                    logger.warning(f"\tdep >= 10 {dep >= 10}")
+                else:
+                    filters = list()
+                    filtered += 1
+                    if r.filter != 'PASS':
+                        filters.append(r.filter)
+                    if r.filter == '*':
+                        filters.append('altStar')
+                    if dep_min_next10bps < 10:
+                        filters.append('lowCovTail')
+                    if dp_ori / DP_unfilt < 0.5:
+                        filters.append('lowRatioInfoDP2fmtDP')
+                    if dep / dp_ori < 0.5:
+                        filters.append('lowRatioCov2infoDP')
+                    if ad_alt / DP_unfilt < 0.15:
+                        filters.append('lowRatioAD2infoDP')
+                    if dep < 10:
+                        filters.append('lowCov')
+                    dropouts[';'.join(sorted(filters))] += 1
+
     if not snps:
         sys.stderr.write('no-SNPs')
         return 1
+
+    print(json.dumps({'passed': snps,
+                      'filtered': filtered,
+                      'filtered_rate': round(filtered*100/(filtered + snps), 2),
+                      'filters': dropouts}), end='')
     return 0
 
 
