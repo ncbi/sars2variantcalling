@@ -155,7 +155,7 @@ def run(_input: Dict, _output: Dict, _config: Dict, _rule: Dict) -> int:
                     filtered += 1
                     if r.filter != 'PASS':
                         filters.append(r.filter)
-                    if r.filter == '*':
+                    if v.alt == '*':
                         filters.append('altStar')
                     if dep_min_next10bps < 10:
                         filters.append('lowCovTail')
@@ -167,6 +167,7 @@ def run(_input: Dict, _output: Dict, _config: Dict, _rule: Dict) -> int:
                         filters.append('lowRatioAD2infoDP')
                     if dep < 10:
                         filters.append('lowCov')
+                    logger and logger.debug(f"pos = {v.pos}, filter = {filters}")
                     dropouts[';'.join(sorted(filters))] += 1
 
     print(json.dumps({'passed': snps,
