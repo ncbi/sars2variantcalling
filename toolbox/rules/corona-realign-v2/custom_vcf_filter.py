@@ -32,6 +32,7 @@ else:
 
 class VCF:
     row = collections.namedtuple('row', 'pos ref alt qual info formats')
+    val = collections.namedtuple('val', 'ad_alt DP_unfilt dp_ori del_sz pos_d dep dep_min_next10bps')
 
     def __init__(self, vcf_file, depth_file):
         self.meta = collections.defaultdict(list)
@@ -129,46 +130,45 @@ def run(_input: Dict, _output: Dict, _config: Dict, _rule: Dict) -> int:
                 o_vcf.write(h)
                 o_vcf.write('\n')
             for v, r in vcf.parse():
-                ad_alt = int(v.formats[0]['AD'].split(',')[1])  # for ALT allele counts from FORMAT field
-                DP_unfilt = int(v.info['DP'])                   # for DP from INFO field
-                dp_ori = int(v.formats[0]['DP'])                # DP from FORMAT
-
                 del_sz = len(v.ref) - len(v.alt)
-                if del_sz > 0:
-                    pos_d = v.pos + del_sz + 1
-                else:
-                    pos_d = v.pos + len(v.ref) + 1
-                dep = vcf.get_depth(v.pos)
-                dep_min_next10bps = vcf.get_min_depth_4_window(pos_d)
+                pos_d = v.pos + del_sz + 1 if del_sz > 0 else v.pos + len(v.ref) + 1
+
+                calc = vcf.val(ad_alt=int(v.formats[0]['AD'].split(',')[1]),  # for ALT allele counts from FORMAT field
+                               DP_unfilt=int(v.info['DP']),                   # for DP from INFO field
+                               dp_ori=int(v.formats[0]['DP']),                # DP from FORMAT
+                               del_sz=del_sz, pos_d=pos_d,
+                               dep=vcf.get_depth(v.pos),
+                               dep_min_next10bps=vcf.get_min_depth_4_window(pos_d))
 
                 if v.alt != '*' and r.filter == 'PASS' \
-                        and dep_min_next10bps >= 10 \
-                        and dp_ori / DP_unfilt >= 0.5 \
-                        and dep / dp_ori >= 0.5 \
-                        and ad_alt / DP_unfilt >= 0.15 \
-                        and dep >= 10:
+                        and calc.dep_min_next10bps >= 10 \
+                        and calc.dp_ori / calc.DP_unfilt >= 0.5 \
+                        and calc.dep / calc.dp_ori >= 0.5 \
+                        and calc.ad_alt / calc.DP_unfilt >= 0.15 \
+                        and calc.dep >= 10:
                     o_vcf.write('\t'.join(r))
                     o_vcf.write('\n')
                     snps += 1
                 else:
-                    filters = list()
+                    filters = dict()
                     filtered += 1
                     if r.filter != 'PASS':
-                        filters.append(r.filter)
+                        filters[r.filter] = ''
                     if v.alt == '*':
-                        filters.append('altStar')
-                    if dep_min_next10bps < 10:
-                        filters.append('lowCovTail')
-                    if dp_ori / DP_unfilt < 0.5:
-                        filters.append('lowRatioInfoDP2fmtDP')
-                    if dep / dp_ori < 0.5:
-                        filters.append('lowRatioCov2infoDP')
-                    if ad_alt / DP_unfilt < 0.15:
-                        filters.append('lowRatioAD2infoDP')
-                    if dep < 10:
-                        filters.append('lowCov')
-                    logger and logger.debug(f"pos = {v.pos}, filter = {filters}")
-                    dropouts[';'.join(sorted(filters))] += 1
+                        filters['altStar'] = '*'
+                    if calc.dep_min_next10bps < 10:
+                        filters['lowCovTail10'] = calc.dep_min_next10bps
+                    if calc.dp_ori / calc.DP_unfilt < 0.5:
+                        filters['lowRatioInfoDP2fmtDP.5'] = calc.dp_ori / calc.DP_unfilt
+                    if calc.dep / calc.dp_ori < 0.5:
+                        filters['lowRatioCov2infoDP.5'] = calc.dep / calc.dp_ori
+                    if calc.ad_alt / calc.DP_unfilt < 0.15:
+                        filters['lowRatioCov2infoDP.15'] = calc.ad_alt / calc.DP_unfilt
+                    if calc.dep < 10:
+                        filters['lowCov10'] = calc.dep
+                    dropouts[';'.join(sorted(filters.keys()))] += 1
+
+                    logger and logger.debug(f"pos = {v.pos}, filter = {filters}, variant = {r}, format = {dict(zip(r.format.split(':'),r[-1].split(':')))}, calc = {calc}")
 
     print(json.dumps({'passed': snps,
                       'filtered': filtered,
