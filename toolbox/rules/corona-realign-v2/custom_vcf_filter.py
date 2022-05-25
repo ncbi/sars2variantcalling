@@ -32,7 +32,7 @@ else:
 
 class VCF:
     row = collections.namedtuple('row', 'pos ref alt qual info formats')
-    val = collections.namedtuple('val', 'ad_alt DP_unfilt dp_ori del_sz pos_d dep dep_min_next10bps')
+    val = collections.namedtuple('val', 'ad_alt dp_unfilt dp_ori del_sz pos_d dep dep_min_next10bps')
 
     def __init__(self, vcf_file, depth_file):
         self.meta = collections.defaultdict(list)
@@ -41,7 +41,7 @@ class VCF:
         self.format = None
         self.columns = None
         self.vcf = None
-
+        self.depth = None
         self.vcf_file = vcf_file
         self.depth_file = depth_file
 
@@ -67,10 +67,10 @@ class VCF:
                                   [dict(zip(format_def, f.split(':'))) for f in loc[9:]]
                                  ]), loc
 
-    def get_min_depth_4_window(self, pos, window = 10):
+    def get_min_depth_4_window(self, pos, window=10):
         return self.depth[pos - 1:pos + window - 1].min()
 
-    def get_depth_window(self, pos, window = 10):
+    def get_depth_window(self, pos, window=10):
         return self.depth[pos - 1:pos + window - 1].tolist()
 
     def get_depth(self, pos):
@@ -134,7 +134,7 @@ def run(_input: Dict, _output: Dict, _config: Dict, _rule: Dict) -> int:
                 pos_d = v.pos + del_sz + 1 if del_sz > 0 else v.pos + len(v.ref) + 1
 
                 calc = vcf.val(ad_alt=int(v.formats[0]['AD'].split(',')[1]),  # for ALT allele counts from FORMAT field
-                               DP_unfilt=int(v.info['DP']),                   # for DP from INFO field
+                               dp_unfilt=int(v.info['DP']),                   # for DP from INFO field
                                dp_ori=int(v.formats[0]['DP']),                # DP from FORMAT
                                del_sz=del_sz, pos_d=pos_d,
                                dep=vcf.get_depth(v.pos),
@@ -142,9 +142,9 @@ def run(_input: Dict, _output: Dict, _config: Dict, _rule: Dict) -> int:
 
                 if v.alt != '*' and r.filter == 'PASS' \
                         and calc.dep_min_next10bps >= 10 \
-                        and calc.dp_ori / calc.DP_unfilt >= 0.5 \
+                        and calc.dp_ori / calc.dp_unfilt >= 0.5 \
                         and calc.dep / calc.dp_ori >= 0.5 \
-                        and calc.ad_alt / calc.DP_unfilt >= 0.15 \
+                        and calc.ad_alt / calc.dp_unfilt >= 0.15 \
                         and calc.dep >= 10:
                     o_vcf.write('\t'.join(r))
                     o_vcf.write('\n')
@@ -158,12 +158,12 @@ def run(_input: Dict, _output: Dict, _config: Dict, _rule: Dict) -> int:
                         filters['altStar'] = '*'
                     if calc.dep_min_next10bps < 10:
                         filters['lowCovTail10'] = calc.dep_min_next10bps
-                    if calc.dp_ori / calc.DP_unfilt < 0.5:
-                        filters['lowRatioInfoDP2fmtDP.5'] = calc.dp_ori / calc.DP_unfilt
+                    if calc.dp_ori / calc.dp_unfilt < 0.5:
+                        filters['lowRatioInfoDP2fmtDP.5'] = calc.dp_ori / calc.dp_unfilt
                     if calc.dep / calc.dp_ori < 0.5:
                         filters['lowRatioCov2infoDP.5'] = calc.dep / calc.dp_ori
-                    if calc.ad_alt / calc.DP_unfilt < 0.15:
-                        filters['lowRatioCov2infoDP.15'] = calc.ad_alt / calc.DP_unfilt
+                    if calc.ad_alt / calc.dp_unfilt < 0.15:
+                        filters['lowRatioCov2infoDP.15'] = calc.ad_alt / calc.dp_unfilt
                     if calc.dep < 10:
                         filters['lowCov10'] = calc.dep
                     dropouts[';'.join(sorted(filters.keys()))] += 1
