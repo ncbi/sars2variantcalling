@@ -108,18 +108,20 @@ rule filter_variants:
     log: "{acc}/LOGS/{acc}.filter_variants.log"
     shell: """
 gatk VariantFiltration -R {ref} -V {input} -O {output} \
-    --filter-name "lowAF" \
-    --filter-expression 'vc.getGenotype("{wildcards.acc}").getAD().1.floatValue() / vc.getGenotype("{wildcards.acc}").getDP() < 0.15' \
-    --filter-name "lowDP" \
-    --filter-expression 'vc.getGenotype("{wildcards.acc}").getDP() < 50' \
     --filter-name "lowAD10" \
-    --filter-expression 'vc.getGenotype("%(input.acc)s").getAD().1 < 10' \
-    --filter-name "lowQUAL" \
+    --filter-expression 'vc.getGenotype("{wildcards.acc}").getAD().1 < 10' \
+    --filter-name "lowQUAL100" \
     --filter-expression 'QUAL < 100' \
     --filter-name "genomeEnd" \
     --filter-expression 'POS > 29850' \
-    --filter-name "likeVQSR" \
-    --filter-expression 'FS < 60.0 && QD >= 2.0 && ReadPosRankSum >= 4.0 && SOR < 4.0' &>{log}
+    --filter-name "highFS60" \
+    --filter-expression 'FS >= 60.0' \
+    --filter-name "lowQD2.0" \
+    --filter-expression 'QD < 2.0' \
+    --filter-name "lowReadPosRankSum4.0" \
+    --filter-expression 'ReadPosRankSum < -4.0' \
+    --filter-name "highSOR4.0" \
+    --filter-expression 'SOR >= 4.0' &>{log}
 """
 
 rule norm:
