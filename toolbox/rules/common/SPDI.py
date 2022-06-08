@@ -176,18 +176,33 @@ class SPDI:
 
         out_ref, out_alt = (mut_alt, mut_ref) if it_is_insert else (mut_ref, mut_alt)
 
-        if not out_ref and mut_pos > 1:
+        """
+    if ($mutPos > 1 && (!$outRef || !$outAlt)) {
+        $mutPos--;
+        my $prevNuc = $self->{_ref_nucs}->[$mutPos-1];
+    
+        if (!$outRef) {
+            $outRef = $prevNuc;
+            $outAlt = "$prevNuc$outAlt";
+        }
+    
+        if (!$outAlt) {
+            $outAlt = $prevNuc;
+            $outRef = "$prevNuc$outRef";
+        }
+    }
+        """
+        if mut_pos > 1 and not (out_ref and out_alt):
             mut_pos -= 1
             prev_nuc = self.ref_nucs[mut_pos - 1]
-            out_ref = prev_nuc
-            out_alt = prev_nuc + out_alt
 
-        if not out_alt:
-            ref_len = len(out_ref)
-            if mut_pos and mut_pos + ref_len < self.genome_length:
-                next_nuc = self.ref_nucs[mut_pos + ref_len - 1]
-                out_ref += next_nuc
-                out_alt = next_nuc
+            if not out_ref:
+                out_ref = prev_nuc
+                out_alt = prev_nuc + out_alt
+
+            if not out_alt:
+                out_alt = prev_nuc
+                out_ref = prev_nuc + out_ref
 
         logger and logger.debug("Final indel call:")
         logger and logger.debug(f"ref {ref} alt {alt} pos {o_pos}")

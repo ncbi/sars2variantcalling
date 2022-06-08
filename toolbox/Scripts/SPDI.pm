@@ -133,19 +133,18 @@ sub ConvertIndelToSPDI
     }
 
     # COV-601: Modify SPDI to avoid using empty ref and alt
-    if (!$outRef && $mutPos > 1) {
+    if ($mutPos > 1 && (!$outRef || !$outAlt)) {
         $mutPos--;
         my $prevNuc = $self->{_ref_nucs}->[$mutPos-1];
-        $outRef = $prevNuc;
-        $outAlt = "$prevNuc$outAlt";
-    }
 
-    if (!$outAlt) {
-        my $refLen = length($outRef);
-        if ($mutPos && $mutPos + $refLen < $self->{_genome_len}) {
-            my $nextNuc = $self->{_ref_nucs}->[$mutPos+$refLen-1];
-            $outRef .= $nextNuc;
-            $outAlt = $nextNuc;
+        if (!$outRef) {
+            $outRef = $prevNuc;
+            $outAlt = "$prevNuc$outAlt";
+        }
+
+        if (!$outAlt) {
+            $outAlt = $prevNuc;
+            $outRef = "$prevNuc$outRef";
         }
     }
 

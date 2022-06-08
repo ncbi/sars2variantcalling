@@ -43,7 +43,7 @@ Test_Blossom(3481 , "A",    3481,  "A",           "",         "Blossom test 11")
 Test_Blossom(3481 , "G",    3481,  "GGG",         "GG",       "Blossom test 12");
 
 # testing ConvertIndelToSPDI
-Test_ConvertIndelToSPDI(3301,  "AGA",   "AG",   3303,  "AG",       "G",       "",    "ConvertIndel test 1");
+Test_ConvertIndelToSPDI(3301,  "AGA",   "AG",   3302,  "GA",       "G",       "",    "ConvertIndel test 1");
 Test_ConvertIndelToSPDI(3481,  "A",     "AG",   3482,  "G",        "GG",      "",    "ConvertIndel test 2");
 Test_ConvertIndelToSPDI(1001,  "",      "A",    1001,  "AAAA",     "AAAAA",   "",    "ConvertIndel test 3");
 Test_ConvertIndelToSPDI(1001,  "-",     "A",    1001,  "AAAA",     "AAAAA",   "",    "ConvertIndel test 4");
@@ -56,27 +56,31 @@ Test_ConvertIndelToSPDI(14843, "AACT",  "A",    14844, "ACTACTA",  "ACTA",    ""
 Test_ConvertIndelToSPDI(21881, "GGTAC", "GG",   21883, "TACTACT",  "TACT",    "",    "ConvertIndel test 11");
 Test_ConvertIndelToSPDI(9430,  "C",     "CGTA", 9431,  "GTA",      "GTAGTA",  "",    "ConvertIndel test 12");
 Test_ConvertIndelToSPDI(12297, "",      "A",    12297, "AA",       "AAA",     "",    "ConvertIndel test 13");
-Test_ConvertIndelToSPDI(11696, "TATGA", "TA",   11697, "ATGAT",    "AT",      "",    "ConvertIndel test 17");
-Test_ConvertIndelToSPDI(11696, "TATGAT","TA",   11698, "TGATT",    "T",       "",    "ConvertIndel test 18");
-Test_ConvertIndelToSPDI(18668, "GT",    "G",    18669, "TG",       "G",       "",    "ConvertIndel test 19");
-Test_ConvertIndelToSPDI(1,     "ATT",   "CATT", 1,     "",         "C",       "",    "ConvertIndel test 20");
-Test_ConvertIndelToSPDI(12297, "-",     "A",    12297, "AA",       "AAA",     "",    "ConvertIndel test 21");
-Test_ConvertIndelToSPDI(18669, "T",     "-",    18669, "TG",       "G",       "",    "ConvertIndel test 22");
-Test_ConvertIndelToSPDI(13200, "CGG",   "TGG",  13200, "C",        "T",       "SNP", "ConvertIndel test 14");
-Test_ConvertIndelToSPDI(13200, "CGG",   "CAG",  13201, "G",        "A",       "SNP", "ConvertIndel test 15");
-Test_ConvertIndelToSPDI(13201, "G",     "A",    13201, "G",        "A",       "SNP", "ConvertIndel test 21");
-Test_ConvertIndelToSPDI(13201, "G",     "G",    13201, "G",        "G",       "SNP", "ConvertIndel test 22");
+Test_ConvertIndelToSPDI(11696, "TATGA", "TA",   11697, "ATGAT",    "AT",      "",    "ConvertIndel test 14");
+Test_ConvertIndelToSPDI(11696, "TATGAT","TA",   11698, "TGATT",    "T",       "",    "ConvertIndel test 15");
+Test_ConvertIndelToSPDI(18668, "GT",    "G",    18668, "GT",       "G",       "",    "ConvertIndel test 16");
+Test_ConvertIndelToSPDI(1,     "ATT",   "CATT", 1,     "",         "C",       "",    "ConvertIndel test 17");
+Test_ConvertIndelToSPDI(12297, "-",     "A",    12297, "AA",       "AAA",     "",    "ConvertIndel test 18");
+Test_ConvertIndelToSPDI(18669, "T",     "-",    18668, "GT",       "G",       "",    "ConvertIndel test 19");
+Test_ConvertIndelToSPDI(13200, "CGG",   "TGG",  13200, "C",        "T",       "SNP", "ConvertIndel test 20");
+Test_ConvertIndelToSPDI(13200, "CGG",   "CAG",  13201, "G",        "A",       "SNP", "ConvertIndel test 21");
+Test_ConvertIndelToSPDI(13201, "G",     "A",    13201, "G",        "A",       "SNP", "ConvertIndel test 22");
+Test_ConvertIndelToSPDI(13201, "G",     "G",    13201, "G",        "G",       "SNP", "ConvertIndel test 23");
+
+# Two cases from https://jira.ncbi.nlm.nih.gov/browse/SRAB-396
+Test_ConvertIndelToSPDI(11287, "GTCTGGTTTT",   "G", 11287, "GTCTGGTTTT", "G", "", "ConvertIndel test 24");
+Test_ConvertIndelToSPDI(21764, "ATACATG",      "A", 21765, "TACATGT",    "T", "", "ConvertIndel test 25");
 
 # testing ConvertIndelToSPDI: unconvertable inputs
-Test_ConvertIndelToSPDI(1001, "G",   "B",   0, "",     "",   "Invalid alt 'B'.", "ConvertIndel test 23");
-Test_ConvertIndelToSPDI(1001, "9",   "A",   0, "",     "",   "Invalid ref '9'.", "ConvertIndel test 24");
-Test_ConvertIndelToSPDI(1001, "G",   "AaT", 0, "",     "",   "Invalid alt 'AaT'.", "ConvertIndel test 25");
-Test_ConvertIndelToSPDI(1001, "T",   "A",   0, "",     "",   "Wrong ref 'T' at pos 1001, should be 'G'.", "ConvertIndel test 26");
-Test_ConvertIndelToSPDI(1001, "",    "",    0, "",     "",   "Empty mutation", "ConvertIndel test 27");
-Test_ConvertIndelToSPDI(1001, "GAA", "CTT", 0, "GAA", "CTT", "Invalid mutation", "ConvertIndel test 28");
-Test_ConvertIndelToSPDI(1001, "GAA", "CA",  0, "GA",  "C",   "Invalid mutation", "ConvertIndel test 29");
-Test_ConvertIndelToSPDI(1001, "GA",  "CAT", 0, "GA",  "CAT", "Invalid mutation", "ConvertIndel test 30");
-Test_ConvertIndelToSPDI(99999,"G",   "A",   0, "",    "",    "Invalid pos 99999", "ConvertIndel test 31");
+Test_ConvertIndelToSPDI(1001, "G",   "B",   0, "",     "",   "Invalid alt 'B'.", "ConvertIndel test 25");
+Test_ConvertIndelToSPDI(1001, "9",   "A",   0, "",     "",   "Invalid ref '9'.", "ConvertIndel test 26");
+Test_ConvertIndelToSPDI(1001, "G",   "AaT", 0, "",     "",   "Invalid alt 'AaT'.", "ConvertIndel test 27");
+Test_ConvertIndelToSPDI(1001, "T",   "A",   0, "",     "",   "Wrong ref 'T' at pos 1001, should be 'G'.", "ConvertIndel test 28");
+Test_ConvertIndelToSPDI(1001, "",    "",    0, "",     "",   "Empty mutation", "ConvertIndel test 29");
+Test_ConvertIndelToSPDI(1001, "GAA", "CTT", 0, "GAA", "CTT", "Invalid mutation", "ConvertIndel test 30");
+Test_ConvertIndelToSPDI(1001, "GAA", "CA",  0, "GA",  "C",   "Invalid mutation", "ConvertIndel test 31");
+Test_ConvertIndelToSPDI(1001, "GA",  "CAT", 0, "GA",  "CAT", "Invalid mutation", "ConvertIndel test 32");
+Test_ConvertIndelToSPDI(99999,"G",   "A",   0, "",    "",    "Invalid pos 99999", "ConvertIndel test 33");
 
 
 sub Test_TrimLeft
