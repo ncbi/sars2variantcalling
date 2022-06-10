@@ -161,9 +161,9 @@ def run(_input: Dict, _output: Dict, _config: Dict, _rule: Dict) -> int:
                     if calc.dp_ori / calc.dp_unfilt < 0.5:
                         filters['lowRatioInfoDP2fmtDP.5'] = calc.dp_ori / calc.dp_unfilt
                     if calc.dep / calc.dp_ori < 0.5:
-                        filters['lowRatioCov2infoDP.5'] = calc.dep / calc.dp_ori
+                        filters['lowRatioCov2FormatDP.5'] = calc.dep / calc.dp_ori
                     if calc.ad_alt / calc.dp_unfilt < 0.15:
-                        filters['lowRatioCov2infoDP.15'] = calc.ad_alt / calc.dp_unfilt
+                        filters['lowRatioFormatAD2infoDP.15'] = calc.ad_alt / calc.dp_unfilt
                     if calc.dep < 10:
                         filters['lowCov10'] = calc.dep
                     dropouts[';'.join(sorted(filters.keys()))] += 1
