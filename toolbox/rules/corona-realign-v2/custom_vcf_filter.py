@@ -68,7 +68,7 @@ class VCF:
                                  ]), loc
 
     def get_min_depth_4_window(self, pos, window=10):
-        return self.depth[pos - 1:pos + window - 1].min()
+        return self.depth[pos - 1:pos + window - 1].min(initial=10)
 
     def get_depth_window(self, pos, window=10):
         return self.depth[pos - 1:pos + window - 1].tolist()
@@ -172,7 +172,6 @@ def run(_input: Dict, _output: Dict, _config: Dict, _rule: Dict) -> int:
 
     print(json.dumps({'passed': snps,
                       'filtered': filtered,
-                      'filtered_rate': round(filtered*100/(filtered + snps), 2),
                       'filters': dropouts}), end='')
 
     if not snps:
