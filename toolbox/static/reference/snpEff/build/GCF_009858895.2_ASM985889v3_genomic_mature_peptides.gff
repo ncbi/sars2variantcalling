@@ -1,0 +1,61 @@
+##gff-version 3
+#!gff-spec-version 1.21
+#!processor NCBI annotwriter
+#!genome-build ASM985889v3
+#!genome-build-accession NCBI_Assembly:GCF_009858895.2
+##sequence-region NC_045512.2 1 29903
+##species https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=2697049
+NC_045512.2	RefSeq	gene	266	805	.	+	.	ID=leader-gene;Name=leader
+NC_045512.2	RefSeq	CDS	266	805	.	+	.	ID=id-YP_009724389.1:1..180;Parent=leader-gene
+NC_045512.2	RefSeq	gene	806	2719	.	+	.	ID=nsp2-gene;Name=nsp2
+NC_045512.2	RefSeq	CDS	806	2719	.	+	.	ID=id-YP_009724389.1:181..818;Parent=nsp2-gene;product=nsp2
+NC_045512.2	RefSeq	gene	2720	8554	.	+	.	ID=nsp3-gene;Name=nsp3
+NC_045512.2	RefSeq	CDS	2720	8554	.	+	.	ID=id-YP_009724389.1:819..2763;Parent=nsp3-gene;product=nsp3
+NC_045512.2	RefSeq	gene	8555	10054	.	+	.	ID=nsp4-gene;Name=nsp4
+NC_045512.2	RefSeq	CDS	8555	10054	.	+	.	ID=id-YP_009724389.1:2764..3263;Parent=nsp4-gene;product=nsp4
+NC_045512.2	RefSeq	gene	10055	10972	.	+	.	ID=3C-like proteinase-gene;Name=3C-like proteinase-gene
+NC_045512.2	RefSeq	CDS	10055	10972	.	+	.	ID=id-YP_009724389.1:3264..3569;Parent=3C-like proteinase-gene;product=3C-like proteinase
+NC_045512.2	RefSeq	gene	10973	11842	.	+	.	ID=nsp6-gene;Name=nsp6
+NC_045512.2	RefSeq	CDS	10973	11842	.	+	.	ID=id-YP_009724389.1:3570..3859;Parent=nsp6-gene;product=nsp6
+NC_045512.2	RefSeq	gene	11843	12091	.	+	.	ID=nsp7-gene;Name=nsp7
+NC_045512.2	RefSeq	CDS	11843	12091	.	+	.	ID=id-YP_009724389.1:3860..3942;Parent=nsp7-gene;product=nsp7
+NC_045512.2	RefSeq	gene	12092	12685	.	+	.	ID=nsp8-gene;Name=nsp8
+NC_045512.2	RefSeq	CDS	12092	12685	.	+	.	ID=id-YP_009724389.1:3943..4140;Parent=nsp8-gene;product=nsp8
+NC_045512.2	RefSeq	gene	12686	13024	.	+	.	ID=nsp9-gene;Name=nsp9
+NC_045512.2	RefSeq	CDS	12686	13024	.	+	.	ID=id-YP_009724389.1:4141..4253;Parent=nsp9-gene;product=nsp9
+NC_045512.2	RefSeq	gene	13025	13441	.	+	.	ID=nsp10-gene;Name=nsp10
+NC_045512.2	RefSeq	CDS	13025	13441	.	+	.	ID=id-YP_009724389.1:4254..4392;Parent=nsp10-gene;product=nsp10
+#NC_045512.2	RefSeq	gene	13442	13468	.	+	.	ID=RNA-dependent RNA polymerase-gene;Name=RNA-dependent RNA polymerase-gene
+NC_045512.2	RefSeq	gene	13442	16236	.	+	.	ID=RNA-dependent RNA polymerase-gene;Name=RNA-dependent RNA polymerase-gene
+NC_045512.2	RefSeq	CDS	13442	13468	.	+	.	ID=rdrp-cds1;Parent=RNA-dependent RNA polymerase-gene;product=RNA-dependent RNA polymerase
+NC_045512.2	RefSeq	CDS	13468	16236	.	+	.	ID=rdrp-cds2;Parent=RNA-dependent RNA polymerase-gene;product=RNA-dependent RNA polymerase;exception=ribosomal slippage
+#NC_045512.2	RefSeq	gene	13468	16236	.	+	.	ID=RNA-dependent RNA polymerase-gene2;Name=RNA-dependent RNA polymerase-gene;exception=ribosomal slippage
+#NC_045512.2	RefSeq	CDS	13468	16236	.	+	.	ID=rdrp-cds;Parent=RNA-dependent RNA polymerase-gene;product=RNA-dependent RNA polymerase;exception=ribosomal slippage
+NC_045512.2	RefSeq	gene	16237	18039	.	+	.	ID=helicase-gene;Name=helicase
+NC_045512.2	RefSeq	CDS	16237	18039	.	+	.	ID=id-YP_009724389.1:5325..5925;Parent=helicase-gene;product=helicase
+NC_045512.2	RefSeq	gene	18040	19620	.	+	.	ID=3'-to-5' exonuclease-gene;Name=3'-to-5' exonuclease
+NC_045512.2	RefSeq	CDS	18040	19620	.	+	.	ID=id-YP_009724389.1:5926..6452;Parent=3'-to-5' exonuclease-gene;product=3'-to-5' exonuclease
+NC_045512.2	RefSeq	gene	19621	20658	.	+	.	ID=endoRNAse-gene;Name=endoRNAse
+NC_045512.2	RefSeq	CDS	19621	20658	.	+	.	ID=id-YP_009724389.1:6453..6798;Parent=endoRNAse-gene;product=endoRNAse
+NC_045512.2	RefSeq	gene	20659	21552	.	+	.	ID=2'-O-ribose methyltransferase-gene;Name=2'-O-ribose methyltransferase
+NC_045512.2	RefSeq	CDS	20659	21552	.	+	.	ID=id-YP_009724389.1:6799..7096;Parent=2'-O-ribose methyltransferase-gene;product=2'-O-ribose methyltransferase
+NC_045512.2	RefSeq	gene	21563	25384	.	+	.	ID=gene-GU280_gp02;Dbxref=GeneID:43740568;Name=S;gbkey=Gene;gene=S;gene_biotype=protein_coding;gene_synonym=spike glycoprotein;locus_tag=GU280_gp02
+NC_045512.2	RefSeq	CDS	21563	25384	.	+	0	ID=cds-YP_009724390.1;Parent=gene-GU280_gp02;Dbxref=Genbank:YP_009724390.1,GeneID:43740568;Name=YP_009724390.1;Note=structural protein%3B spike protein;gbkey=CDS;gene=S;locus_tag=GU280_gp02;product=surface glycoprotein;protein_id=YP_009724390.1
+NC_045512.2	RefSeq	gene	25393	26220	.	+	.	ID=gene-GU280_gp03;Dbxref=GeneID:43740569;Name=ORF3a;gbkey=Gene;gene=ORF3a;gene_biotype=protein_coding;locus_tag=GU280_gp03
+NC_045512.2	RefSeq	CDS	25393	26220	.	+	0	ID=cds-YP_009724391.1;Parent=gene-GU280_gp03;Dbxref=Genbank:YP_009724391.1,GeneID:43740569;Name=YP_009724391.1;gbkey=CDS;gene=ORF3a;locus_tag=GU280_gp03;product=ORF3a protein;protein_id=YP_009724391.1
+NC_045512.2	RefSeq	gene	26245	26472	.	+	.	ID=gene-GU280_gp04;Dbxref=GeneID:43740570;Name=E;gbkey=Gene;gene=E;gene_biotype=protein_coding;locus_tag=GU280_gp04
+NC_045512.2	RefSeq	CDS	26245	26472	.	+	0	ID=cds-YP_009724392.1;Parent=gene-GU280_gp04;Dbxref=Genbank:YP_009724392.1,GeneID:43740570;Name=YP_009724392.1;Note=ORF4%3B structural protein%3B E protein;gbkey=CDS;gene=E;locus_tag=GU280_gp04;product=envelope protein;protein_id=YP_009724392.1
+NC_045512.2	RefSeq	gene	26523	27191	.	+	.	ID=gene-GU280_gp05;Dbxref=GeneID:43740571;Name=M;gbkey=Gene;gene=M;gene_biotype=protein_coding;locus_tag=GU280_gp05
+NC_045512.2	RefSeq	CDS	26523	27191	.	+	0	ID=cds-YP_009724393.1;Parent=gene-GU280_gp05;Dbxref=Genbank:YP_009724393.1,GeneID:43740571;Name=YP_009724393.1;Note=ORF5%3B structural protein;gbkey=CDS;gene=M;locus_tag=GU280_gp05;product=membrane glycoprotein;protein_id=YP_009724393.1
+NC_045512.2	RefSeq	gene	27202	27387	.	+	.	ID=gene-GU280_gp06;Dbxref=GeneID:43740572;Name=ORF6;gbkey=Gene;gene=ORF6;gene_biotype=protein_coding;locus_tag=GU280_gp06
+NC_045512.2	RefSeq	CDS	27202	27387	.	+	0	ID=cds-YP_009724394.1;Parent=gene-GU280_gp06;Dbxref=Genbank:YP_009724394.1,GeneID:43740572;Name=YP_009724394.1;gbkey=CDS;gene=ORF6;locus_tag=GU280_gp06;product=ORF6 protein;protein_id=YP_009724394.1
+NC_045512.2	RefSeq	gene	27394	27759	.	+	.	ID=gene-GU280_gp07;Dbxref=GeneID:43740573;Name=ORF7a;gbkey=Gene;gene=ORF7a;gene_biotype=protein_coding;locus_tag=GU280_gp07
+NC_045512.2	RefSeq	CDS	27394	27759	.	+	0	ID=cds-YP_009724395.1;Parent=gene-GU280_gp07;Dbxref=Genbank:YP_009724395.1,GeneID:43740573;Name=YP_009724395.1;gbkey=CDS;gene=ORF7a;locus_tag=GU280_gp07;product=ORF7a protein;protein_id=YP_009724395.1
+NC_045512.2	RefSeq	gene	27756	27887	.	+	.	ID=gene-GU280_gp08;Dbxref=GeneID:43740574;Name=ORF7b;gbkey=Gene;gene=ORF7b;gene_biotype=protein_coding;locus_tag=GU280_gp08
+NC_045512.2	RefSeq	CDS	27756	27887	.	+	0	ID=cds-YP_009725318.1;Parent=gene-GU280_gp08;Dbxref=Genbank:YP_009725318.1,GeneID:43740574;Name=YP_009725318.1;gbkey=CDS;gene=ORF7b;locus_tag=GU280_gp08;product=ORF7b;protein_id=YP_009725318.1
+NC_045512.2	RefSeq	gene	27894	28259	.	+	.	ID=gene-GU280_gp09;Dbxref=GeneID:43740577;Name=ORF8;gbkey=Gene;gene=ORF8;gene_biotype=protein_coding;locus_tag=GU280_gp09
+NC_045512.2	RefSeq	CDS	27894	28259	.	+	0	ID=cds-YP_009724396.1;Parent=gene-GU280_gp09;Dbxref=Genbank:YP_009724396.1,GeneID:43740577;Name=YP_009724396.1;gbkey=CDS;gene=ORF8;locus_tag=GU280_gp09;product=ORF8 protein;protein_id=YP_009724396.1
+NC_045512.2	RefSeq	gene	28274	29533	.	+	.	ID=gene-GU280_gp10;Dbxref=GeneID:43740575;Name=N;gbkey=Gene;gene=N;gene_biotype=protein_coding;locus_tag=GU280_gp10
+NC_045512.2	RefSeq	CDS	28274	29533	.	+	0	ID=cds-YP_009724397.2;Parent=gene-GU280_gp10;Dbxref=Genbank:YP_009724397.2,GeneID:43740575;Name=YP_009724397.2;Note=ORF9%3B structural protein;gbkey=CDS;gene=N;locus_tag=GU280_gp10;product=nucleocapsid phosphoprotein;protein_id=YP_009724397.2
+NC_045512.2	RefSeq	gene	29558	29674	.	+	.	ID=gene-GU280_gp11;Dbxref=GeneID:43740576;Name=ORF10;gbkey=Gene;gene=ORF10;gene_biotype=protein_coding;locus_tag=GU280_gp11
+NC_045512.2	RefSeq	CDS	29558	29674	.	+	0	ID=cds-YP_009725255.1;Parent=gene-GU280_gp11;Dbxref=Genbank:YP_009725255.1,GeneID:43740576;Name=YP_009725255.1;gbkey=CDS;gene=ORF10;locus_tag=GU280_gp11;product=ORF10 protein;protein_id=YP_009725255.1

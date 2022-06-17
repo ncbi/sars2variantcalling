@@ -1,0 +1,25 @@
+# The following table is formatted as tab separated values. 
+#GeneName	GeneId	TranscriptId	BioType	variants_impact_LOW	variants_impact_MODERATE	variants_impact_MODIFIER	variants_effect_CODON_CHANGE_PLUS_CODON_DELETION	variants_effect_CODON_DELETION	variants_effect_DOWNSTREAM	variants_effect_NON_SYNONYMOUS_CODING	variants_effect_SYNONYMOUS_CODING	variants_effect_UPSTREAM
+2'-O-ribose methyltransferase	2'-O-ribose methyltransferase-gene	TRANSCRIPT_2'-O-ribose methyltransferase-gene	protein_coding	0	0	3	0	0	3	0	0	0
+3'-to-5' exonuclease	3'-to-5' exonuclease-gene	TRANSCRIPT_3'-to-5' exonuclease-gene	protein_coding	0	0	4	0	0	3	0	0	1
+3C-like proteinase-gene	3C-like proteinase-gene	TRANSCRIPT_3C-like proteinase-gene	protein_coding	0	0	2	0	0	2	0	0	0
+E	gene-GU280_gp04	TRANSCRIPT_gene-GU280_gp04	protein_coding	0	0	4	0	0	1	0	0	3
+M	gene-GU280_gp05	TRANSCRIPT_gene-GU280_gp05	protein_coding	0	0	4	0	0	1	0	0	3
+N	gene-GU280_gp10	TRANSCRIPT_gene-GU280_gp10	protein_coding	0	0	2	0	0	0	0	0	2
+ORF10	gene-GU280_gp11	TRANSCRIPT_gene-GU280_gp11	protein_coding	0	0	1	0	0	0	0	0	1
+ORF3a	gene-GU280_gp03	TRANSCRIPT_gene-GU280_gp03	protein_coding	0	0	4	0	0	1	0	0	3
+ORF6	gene-GU280_gp06	TRANSCRIPT_gene-GU280_gp06	protein_coding	0	0	2	0	0	1	0	0	1
+ORF7a	gene-GU280_gp07	TRANSCRIPT_gene-GU280_gp07	protein_coding	0	0	2	0	0	1	0	0	1
+ORF7b	gene-GU280_gp08	TRANSCRIPT_gene-GU280_gp08	protein_coding	0	0	2	0	0	1	0	0	1
+ORF8	gene-GU280_gp09	TRANSCRIPT_gene-GU280_gp09	protein_coding	0	0	2	0	0	1	0	0	1
+RNA-dependent RNA polymerase-gene	RNA-dependent RNA polymerase-gene	TRANSCRIPT_RNA-dependent RNA polymerase-gene	protein_coding	1	0	1	0	0	0	0	1	1
+S	gene-GU280_gp02	TRANSCRIPT_gene-GU280_gp02	protein_coding	0	3	1	2	0	1	1	0	0
+endoRNAse	endoRNAse-gene	TRANSCRIPT_endoRNAse-gene	protein_coding	0	0	3	0	0	3	0	0	0
+helicase	helicase-gene	TRANSCRIPT_helicase-gene	protein_coding	0	0	4	0	0	2	0	0	2
+nsp10	nsp10-gene	TRANSCRIPT_nsp10-gene	protein_coding	0	0	2	0	0	1	0	0	1
+nsp3	nsp3-gene	TRANSCRIPT_nsp3-gene	protein_coding	0	0	2	0	0	2	0	0	0
+nsp4	nsp4-gene	TRANSCRIPT_nsp4-gene	protein_coding	0	0	2	0	0	2	0	0	0
+nsp6	nsp6-gene	TRANSCRIPT_nsp6-gene	protein_coding	0	1	1	0	1	1	0	0	0
+nsp7	nsp7-gene	TRANSCRIPT_nsp7-gene	protein_coding	0	0	2	0	0	1	0	0	1
+nsp8	nsp8-gene	TRANSCRIPT_nsp8-gene	protein_coding	0	0	2	0	0	1	0	0	1
+nsp9	nsp9-gene	TRANSCRIPT_nsp9-gene	protein_coding	0	0	2	0	0	1	0	0	1
