@@ -4,9 +4,11 @@ import os
 
 args = sys.argv
 toolbox_location = os.path.dirname(os.path.dirname(args[args.index("-s") + 1]))
+snpeff_config=config["snpeff_config"]
+vcf_validator=config["vcf_validator"]
 
 products = ["filtered_fq", "initial.consensus.fa", "initial.avg_depth", "final.consensus.fa", "mummer.delta",
-            "delta.snps", "delta.snps.vcf", "vcf"]
+            "delta.snps", "delta.snps.vcf", "vcf", "ref.snpeff.vcf",  "vcfvalidate.done"]
 
 with open(config['jobs'],'r') as jj:
     tickets = json.load(jj)
@@ -180,8 +182,8 @@ set -e
 set -o pipefail 
 grep '^##' {input.vcf}.filt_with_snpCluster
 cat << EOF
-##INFO=<ID=AVG,Number=1,Type=float,Description="Mean coverage of the run">
-##INFO=<ID=STD,Number=1,Type=float,Description="Standard devidation of the coverage">
+##INFO=<ID=AVG,Number=1,Type=Float,Description="Mean coverage of the run">
+##INFO=<ID=STD,Number=1,Type=Float,Description="Standard devidation of the coverage">
 ##INFO=<ID=GAP,Number=1,Type=Integer,Description="Total counts of the gaps from 0 coverage">
 ##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw depths">
 ##INFO=<ID=AD,Number=1,Type=Integer,Description="Depth of ALT">
@@ -229,5 +231,29 @@ rule spdi:
     log: "LOGS/{acc}.spdi.log"
     threads: 1
     shell: """
-python3 {toolbox_location}/rules/common/SPDI.py --r {ref} --i {input} --o {output.vcf} --s {output.summary}
+python3 {toolbox_location}/rules/common/SPDI.py --r {config[ref]} --i {input} --o {output.vcf} --s {output.summary}
+"""
+
+rule snpeff:
+    input: rules.spdi.output.vcf
+    output: "{acc}/{acc}.ref.snpeff.vcf"
+    log: "{acc}/LOGS/{acc}.snpeff.log"
+    threads: 1
+    shell: """
+snpEff ann \\
+	-nodownload -formatEff -classic -noStats -noLog -quiet -no-upstream -no-downstream \\
+	-c {snpeff_config} sars2 -v {input} \\
+	2>{log} > {output}
+"""
+
+rule vcfValidate:
+    input: snpvcf = rules.snpeff.output
+    output: touch("{acc}/{acc}.vcfvalidate.done")
+    log: "{acc}/LOGS/{acc}.vcf_validate.log"
+    threads: 1
+    shell:"""
+    if ! {vcf_validator} -i {input.snpvcf} &>{log} ; then
+        echo -n "Failed to validate" &>{log}
+        exit 1
+    fi
 """
