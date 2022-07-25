@@ -1,0 +1,40 @@
+##fileformat=VCFv4.2
+##FILTER=<ID=PASS,Description="All filters passed">
+##contig=<ID=NC_045512.2,length=29903>
+##ALT=<ID=*,Description="Represents allele(s) other than observed.">
+##INFO=<ID=INDEL,Number=0,Type=Flag,Description="Indicates that the variant is an INDEL.">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Number of high-quality bases">
+##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Allelic depths">
+##bcftools_normVersion=1.9+htslib-1.9
+##bcftools_normCommand=norm --multiallelics -both --fasta-ref /panfs/traces01.be-md.ncbi.nlm.nih.gov/sra_review/scratch/zaluninvv/Test/Corona/NC_045512.2.fa test.vcf; Date=Wed Mar 10 20:06:03 2021
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+NC_045512.2	13465	.	A	G	255	.	EFFECT=SYNONYMOUS_CODING;variation=L8;ref_aa=L;alt_aa=;protein_position=8
+NC_045512.2	13465	.	A	C	255	.	EFFECT=NON_SYNONYMOUS_CODING;variation=L8F;ref_aa=L;alt_aa=F;protein_position=8
+NC_045512.2	13465	.	AA	AAA	255	.	EFFECT=FRAME_SHIFT+SPLICE_SITE_REGION;variation=N9K?;ref_aa=N;alt_aa=K?;protein_position=9
+NC_045512.2	13465	.	AAA	AA	255	.	EFFECT=FRAME_SHIFT+SPLICE_SITE_REGION;variation=N9;ref_aa=N;alt_aa=;protein_position=9
+NC_045512.2	13465	.	A	T	255	.	EFFECT=NON_SYNONYMOUS_CODING;variation=L8F;ref_aa=L;alt_aa=F;protein_position=8
+NC_045512.2	13466	.	A	G	255	.	EFFECT=NON_SYNONYMOUS_CODING+SPLICE_SITE_REGION;variation=N9D;ref_aa=N;alt_aa=D;protein_position=9
+NC_045512.2	13466	.	A	T	255	.	EFFECT=NON_SYNONYMOUS_CODING+SPLICE_SITE_REGION;variation=N9Y;ref_aa=N;alt_aa=Y;protein_position=9
+NC_045512.2	13466	.	A	C	255	.	EFFECT=NON_SYNONYMOUS_CODING+SPLICE_SITE_REGION;variation=N9H;ref_aa=N;alt_aa=H;protein_position=9
+NC_045512.2	13467	.	A	AT	255	.	EFFECT=FRAME_SHIFT;variation=R1S?;ref_aa=R;alt_aa=S?;protein_position=1
+NC_045512.2	13467	.	A	G	255	.	EFFECT=NON_SYNONYMOUS_CODING+SPLICE_SITE_REGION;variation=N9S;ref_aa=N;alt_aa=S;protein_position=9
+NC_045512.2	13467	.	A	C	255	.	EFFECT=NON_SYNONYMOUS_CODING+SPLICE_SITE_REGION;variation=N9T;ref_aa=N;alt_aa=T;protein_position=9
+NC_045512.2	13467	.	AC	A	255	.	EFFECT=FRAME_SHIFT+SPLICE_SITE_REGION;variation=N9;ref_aa=N;alt_aa=;protein_position=9
+NC_045512.2	13467	.	A	T	255	.	EFFECT=NON_SYNONYMOUS_CODING+SPLICE_SITE_REGION;variation=N9I;ref_aa=N;alt_aa=I;protein_position=9
+NC_045512.2	13468	.	C	G	255	.	EFFECT=NON_SYNONYMOUS_CODING+SPLICE_SITE_REGION;variation=N9K;ref_aa=N;alt_aa=K;protein_position=9
+NC_045512.2	13468	.	C	A	255	.	EFFECT=NON_SYNONYMOUS_CODING+SPLICE_SITE_REGION;variation=N9K;ref_aa=N;alt_aa=K;protein_position=9
+NC_045512.2	13468	.	C	T	255	.	EFFECT=NON_SYNONYMOUS_CODING;variation=R1W;ref_aa=R;alt_aa=W;protein_position=1
+NC_045512.2	13469	.	G	C	255	.	EFFECT=NON_SYNONYMOUS_CODING;variation=R1P;ref_aa=R;alt_aa=P;protein_position=1
+NC_045512.2	13469	.	GGG	GG	255	.	EFFECT=FRAME_SHIFT;variation=V2;ref_aa=V;alt_aa=;protein_position=2
+NC_045512.2	13469	.	G	T	255	.	EFFECT=NON_SYNONYMOUS_CODING;variation=R1L;ref_aa=R;alt_aa=L;protein_position=1
+NC_045512.2	13469	.	G	GAACTGTGTATGATGAT	255	.	EFFECT=FRAME_SHIFT;variation=R1RTVYDD?;ref_aa=R;alt_aa=RTVYDD?;protein_position=1
+NC_045512.2	13469	.	G	A	255	.	EFFECT=NON_SYNONYMOUS_CODING;variation=R1Q;ref_aa=R;alt_aa=Q;protein_position=1
+NC_045512.2	13469	.	GGG	G	255	.	EFFECT=FRAME_SHIFT;variation=RV1;ref_aa=RV;alt_aa=;protein_position=1
+NC_045512.2	13470	.	G	C	255	.	EFFECT=SYNONYMOUS_CODING;variation=R1;ref_aa=R;alt_aa=;protein_position=1
+NC_045512.2	13470	.	G	T	255	.	EFFECT=SYNONYMOUS_CODING;variation=R1;ref_aa=R;alt_aa=;protein_position=1
+NC_045512.2	13470	.	G	A	255	.	EFFECT=SYNONYMOUS_CODING;variation=R1;ref_aa=R;alt_aa=;protein_position=1
+NC_045512.2	13470	.	GGT	G	255	.	EFFECT=FRAME_SHIFT;variation=V2;ref_aa=V;alt_aa=;protein_position=2
+NC_045512.2	13471	.	G	C	255	.	EFFECT=NON_SYNONYMOUS_CODING;variation=V2L;ref_aa=V;alt_aa=L;protein_position=2
+NC_045512.2	13471	.	G	T	255	.	EFFECT=NON_SYNONYMOUS_CODING;variation=V2F;ref_aa=V;alt_aa=F;protein_position=2
+NC_045512.2	13471	.	G	A	255	.	EFFECT=NON_SYNONYMOUS_CODING;variation=V2I;ref_aa=V;alt_aa=I;protein_position=2
+NC_045512.2	13471	.	G	GT	255	.	EFFECT=FRAME_SHIFT;variation=C3L?;ref_aa=C;alt_aa=L?;protein_position=3
