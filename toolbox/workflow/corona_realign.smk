@@ -10,8 +10,8 @@ vcfEffOnePerLine=config["vcfEffOnePerLine"]
 vcf_validator=config["vcf_validator"]
 
 accessions_file_path = 'accs'
-products = ["consensus.bam", "consensus.coverage", "consensus.depth", "consensus.fa", "consensus.summary", "ref.bam",
-            "ref.depth", "ref.snp_eff.tsv", "ref.snpeff.vcf", "ref.summary", "ref.vcf", "vcfvalidate.done"]
+products = ["consensus.coverage", "consensus.depth", "consensus.fa", "consensus.summary", "ref.bam",
+            "ref.depth", "ref.snp_eff.tsv", "ref.snpeff.vcf", "ref.summary", "ref.vcf"]
 
 
 with open(accessions_file_path,'r') as f:
@@ -229,7 +229,7 @@ fi
 
 rule align_consensus:
     input: fastq=rules.trimmed.output,consensus=rules.consensus.output
-    output: bam="{acc}/{acc}.consensus.bam",bai="{acc}/{acc}.consensus.bam.bai", summary="{acc}/{acc}.consensus.summary"
+    output: bam=temp("{acc}/{acc}.consensus.bam"),bai=temp("{acc}/{acc}.consensus.bam.bai"), summary="{acc}/{acc}.consensus.summary"
     threads: 6
     log: "{acc}/LOGS/{acc}.ref.bam.log"
     shell: """
