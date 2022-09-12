@@ -1,0 +1,237 @@
+ ERR4333006           ILLUMINA                                          
+	              65929518                 158594 PAIRED              
+	                   207                      1
+ SRR16187370          ILLUMINA                                          
+	              21984794                  74470 PAIRED              
+	                   147                      1
+ ERR8491890           ILLUMINA                                          
+	             542296903                1295287 PAIRED              
+	                   209                     10
+ ERR8498861           ILLUMINA                                          
+	             397321743                 951881 PAIRED              
+	                   208                     10
+ ERR8498156           ILLUMINA                                          
+	            1165164028                2780272 PAIRED              
+	                   209                     20
+ SRR16260612          ILLUMINA                                          
+	              82541204                 179774 PAIRED              
+	                   229                     20
+ ERR9201032           ILLUMINA                                          
+	            1550244290                3704315 PAIRED              
+	                   209                     30
+ ERR9207638           ILLUMINA                                          
+	             969170452                2318478 PAIRED              
+	                   209                     30
+ SRR11578062          ILLUMINA                                          
+	             162411137                 552966 PAIRED              
+	                   146                     40
+ SRR11813125          ILLUMINA                                          
+	             162327176                 574374 PAIRED              
+	                   141                     40
+ SRR12348424          ILLUMINA                                          
+	             982312066                3397897 PAIRED              
+	                   144                     50
+ SRR13094822          ILLUMINA                                          
+	             202803344                 694532 PAIRED              
+	                   146                     50
+ ERR4157962           ILLUMINA                                          
+	             235881575                 870695 PAIRED              
+	                   135                     60
+ SRR15976884          ILLUMINA                                          
+	            1628699663                5548377 PAIRED              
+	                   146                     60
+ SRR11621999          ILLUMINA                                          
+	             285984156                 969719 PAIRED              
+	                   147                     70
+ SRR11783610          ILLUMINA                                          
+	             294642600                 982142 PAIRED              
+	                   150                     70
+ SRR11622005          ILLUMINA                                          
+	             325013304                1100696 PAIRED              
+	                   147                     80
+ SRR16933846          ILLUMINA                                          
+	             327573269                1094940 PAIRED              
+	                   149                     80
+ SRR16933796          ILLUMINA                                          
+	             369411573                1234798 PAIRED              
+	                   149                     90
+ SRR18942740          ILLUMINA                                          
+	             379041468                2561091 PAIRED              
+	                    74                     90
+ SRR16150768          ILLUMINA                                          
+	            2664413189                9085253 PAIRED              
+	                   146                    100
+ SRR16933727          ILLUMINA                                          
+	             410546601                1372230 PAIRED              
+	                   149                    100
+ ERR5077954           ILLUMINA                                          
+	              23411524                  52257 SINGLE              
+	                   448                      1
+ ERR7708101           ILLUMINA                                          
+	              13691682                  63027 SINGLE              
+	                   217                      1
+ ERR4205275           ILLUMINA                                          
+	             120061806                 438880 SINGLE              
+	                   273                     10
+ ERR4207788           ILLUMINA                                          
+	             123857451                 448857 SINGLE              
+	                   275                     10
+ ERR4209435           ILLUMINA                                          
+	             332169378                1172062 SINGLE              
+	                   283                     20
+ ERR5078248           ILLUMINA                                          
+	             502912290                1128826 SINGLE              
+	                   445                     20
+ ERR5090444           ILLUMINA                                          
+	             506479900                1851348 SINGLE              
+	                   273                     30
+ SRR19763180          ILLUMINA                                          
+	             117793239                1654701 SINGLE              
+	                    71                     30
+ ERR7199089           ILLUMINA                                          
+	             578995518                2327978 SINGLE              
+	                   248                     40
+ SRR20428112          ILLUMINA                                          
+	             164883604                2214834 SINGLE              
+	                    74                     40
+ ERR5067280           ILLUMINA                                          
+	            1159531951                3967130 SINGLE              
+	                   292                     50
+ SRR12352842          ILLUMINA                                          
+	             211376256                1100918 SINGLE              
+	                   192                     50
+ ERR5092271           ILLUMINA                                          
+	             934304006                3516174 SINGLE              
+	                   265                     60
+ SRR20886132          ILLUMINA                                          
+	             503232018                6808064 SINGLE              
+	                    73                     60
+ SRR19598968          ILLUMINA                                          
+	             284499075                3821250 SINGLE              
+	                    74                     70
+ SRR20071830          ILLUMINA                                          
+	             271536363                1261788 SINGLE              
+	                   215                     70
+ ERR5091696           ILLUMINA                                          
+	            1230250582                4598408 SINGLE              
+	                   267                     80
+ ERR6113161           ILLUMINA                                          
+	            1998780999                6972199 SINGLE              
+	                   286                     80
+ SRR18741949          ILLUMINA                                          
+	             348741098                4732723 SINGLE              
+	                    73                     90
+ SRR19944151          ILLUMINA                                          
+	            1474334497                9839397 SINGLE              
+	                   149                     90
+ ERR5078492           ILLUMINA                                          
+	            2584937201                5595789 SINGLE              
+	                   461                    100
+ SRR19782838          ILLUMINA                                          
+	             393024853                5303857 SINGLE              
+	                    74                    100
+ ERR4241789           OXFORD_NANOPORE                                   
+	              15867335                   7932 SINGLE              
+	                  2000                      1
+ ERR4242117           OXFORD_NANOPORE                                   
+	              13780220                   6831 SINGLE              
+	                  2017                      1
+ SRR11593376          OXFORD_NANOPORE                                   
+	              43612169                  85085 SINGLE              
+	                   512                     10
+ SRR11637211          OXFORD_NANOPORE                                   
+	              44916416                  57307 SINGLE              
+	                   783                     10
+ SRR11637224          OXFORD_NANOPORE                                   
+	              82586324                  97577 SINGLE              
+	                   846                     20
+ SRR11637225          OXFORD_NANOPORE                                   
+	              84924287                 104253 SINGLE              
+	                   814                     20
+ SRR11637213          OXFORD_NANOPORE                                   
+	             125140963                 139833 SINGLE              
+	                   894                     30
+ SRR11637216          OXFORD_NANOPORE                                   
+	             123474216                 158116 SINGLE              
+	                   780                     30
+ ERR4364589           OXFORD_NANOPORE                                   
+	             264680418                 550481 SINGLE              
+	                   480                     40
+ SRR11648020          OXFORD_NANOPORE                                   
+	             167132819                 344302 SINGLE              
+	                   485                     40
+ SRR11637239          OXFORD_NANOPORE                                   
+	             207845010                 244772 SINGLE              
+	                   849                     50
+ SRR11637261          OXFORD_NANOPORE                                   
+	             206461167                 235540 SINGLE              
+	                   876                     50
+ ERR4241595           OXFORD_NANOPORE                                   
+	             365817335                 721148 SINGLE              
+	                   507                     60
+ ERR4241977           OXFORD_NANOPORE                                   
+	             367743986                 725022 SINGLE              
+	                   507                     60
+ ERR4241866           OXFORD_NANOPORE                                   
+	             423348971                 831690 SINGLE              
+	                   509                     70
+ ERR4242131           OXFORD_NANOPORE                                   
+	             424842231                 835888 SINGLE              
+	                   508                     70
+ SRR13039718          OXFORD_NANOPORE                                   
+	             331695434                 169525 SINGLE              
+	                  1956                     80
+ SRR13039767          OXFORD_NANOPORE                                   
+	             334989816                 167863 SINGLE              
+	                  1995                     80
+ SRR11637191          OXFORD_NANOPORE                                   
+	             373898710                 439835 SINGLE              
+	                   850                     90
+ SRR11637334          OXFORD_NANOPORE                                   
+	             373918456                 343052 SINGLE              
+	                  1089                     90
+ ERR9467277           OXFORD_NANOPORE                                   
+	             411028348                 744149 SINGLE              
+	                   552                    100
+ SRR17100129          OXFORD_NANOPORE                                   
+	             409155384                 776145 SINGLE              
+	                   527                    100
+ SRR15536627          PACBIO_SMRT                                       
+	               4757313                   6570 PAIRED              
+	                   362                      1
+ SRR15573319          PACBIO_SMRT                                       
+	               6550260                   8737 PAIRED              
+	                   374                      1
+ SRR20386532          PACBIO_SMRT                                       
+	              40433707                  53796 PAIRED              
+	                   375                     10
+ SRR20477139          PACBIO_SMRT                                       
+	              75478260                 104869 PAIRED              
+	                   359                     20
+ SRR19909779          PACBIO_SMRT                                       
+	              41286249                  57397 SINGLE              
+	                   719                     10
+ SRR19182065          PACBIO_SMRT                                       
+	              84089273                 126582 SINGLE              
+	                   664                     20
+ SRR14751992          PACBIO_SMRT                                       
+	             126410483                 108770 SINGLE              
+	                  1162                     30
+ SRR14752026          PACBIO_SMRT                                       
+	             128878071                 110799 SINGLE              
+	                  1163                     30
+ SRR19182187          PACBIO_SMRT                                       
+	             169098591                 256132 SINGLE              
+	                   660                     40
+ SRR13380675          PACBIO_SMRT                                       
+	             211577772                  52946 SINGLE              
+	                  3996                     50
+ SRR13380672          PACBIO_SMRT                                       
+	             227545310                  58186 SINGLE              
+	                  3910                     54
+ SRR18519292          PACBIO_SMRT                                       
+	             256196206                 390664 SINGLE              
+	                   655                     62
+ SRR13380673          PACBIO_SMRT                                       
+	             313874313                  89585 SINGLE              
+	                  3503                     75
