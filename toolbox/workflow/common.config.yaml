@@ -1,0 +1,21 @@
+# all
+workdir: workdir
+codedir: some.dir
+accs: some.list
+ref: static/reference/NC_045512.2.fa
+snpeff_config: static/snpEff/snpEff.config
+
+## tools
+trimmomatic: java -jar /usr/local/trimmomatic/0.39/trimmomatic-0.39.jar
+snpSift: java -Xms1g -Xmx4g -jar /usr/local/snpEff/4.2/SnpSift.jar
+snpEff: java -Xms1g -Xmx4g -jar /usr/local/snpEff/4.2/snpEff.jar
+vcfEffOnePerLine: vcfEffOnePerLine.pl
+vcf_validator: vcf_validator_linux
+snpEff2tsv: Scripts/snpEff2tsv.sh
+
+# illumina
+# ont
+nanopore_coverage_threshold: 50
+## pacbio
+## genbank
+

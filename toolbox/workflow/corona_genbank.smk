@@ -1,24 +1,30 @@
 import sys
 import os
 
+configfile: "common.config.yaml"
+
 args = sys.argv
 toolbox_location = os.path.dirname(os.path.dirname(args[args.index("-s") + 1]))
 
-ref = config["ref"]
-snpeff_config = config["snpeff_config"]
+workdir: config["workdir"]
+
+ref = os.path.join(config["codedir"],config["ref"])
+snpeff_config=os.path.join(config["codedir"],config["snpeff_config"])
 snpEff2tsv = config["snpEff2tsv"]
+snpEff=config["snpEff"]
+
+accessions_file_path = config["accs"]
 
 products = ["fa", "ref.bam", "ref.bam.bai", "ref.mpileup", "vcf",
             "annotated.vcf", "snpEff_summary.html", "snpEff_summary.genes.txt", "tsv"]
 
-accessions_file_path = config["accs"]
 with open(accessions_file_path,'r') as f:
-    accessions = [line.strip() for line in f.readlines()]
+    accessions = [line.strip().split()[0] for line in f.readlines()]
 
 rule all:
     input: expand("{acc}/{acc}.{product}", acc=accessions, product=products)
     shell: """
-ls {input}
+ls -l {input}
 """
 
 rule fetch:
@@ -67,7 +73,7 @@ rule spdi:
     log: "LOGS/{acc}.spdi.log"
     threads: 1
     shell: """
-python3 {toolbox_location}/rules/common/SPDI.py --r {ref} --i {input} --o {output.vcf} --s {output.summary}
+python3 {toolbox_location}/Scripts/SPDI.py --r {ref} --i {input} --o {output.vcf} --s {output.summary}
 """
 
 rule snpeff:
@@ -76,7 +82,7 @@ rule snpeff:
             annoVCF = "{acc}/{acc}.annotated.vcf"
     log: "{acc}/LOGS/{acc}.snpeff.log"
     shell: """
-    snpeff ann -nodownload -canon -formatEff -classic -no-upstream -no-downstream \
+    {snpEff} ann -nodownload -canon -formatEff -classic -no-upstream -no-downstream \
     -c {snpeff_config} sars2_mp -v {input} > {output.annoVCF} \
     -s {wildcards.acc}/{wildcards.acc}.snpEff_summary.html 2> {log}
     """

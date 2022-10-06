@@ -2,33 +2,40 @@ import json
 import sys
 import os
 
+configfile: "common.config.yaml"
+
 args = sys.argv
 toolbox_location = os.path.dirname(os.path.dirname(args[args.index("-s") + 1]))
-snpeff_config=config["snpeff_config"]
+
+workdir: config["workdir"]
+
+ref = os.path.join(config["codedir"],config["ref"])
+snpeff_config=os.path.join(config["codedir"],config["snpeff_config"])
+
 vcf_validator=config["vcf_validator"]
 
 products = ["filtered_fq", "initial.consensus.fa", "initial.avg_depth", "final.consensus.fa", "mummer.delta",
             "delta.snps", "delta.snps.vcf", "vcf", "ref.snpeff.vcf",  "vcfvalidate.done"]
 
-with open(config['jobs'],'r') as jj:
-    tickets = json.load(jj)
-    for ticket in tickets:
-        parameters = tickets[ticket]
-        parameters['model'] = "r941_min_high_g360"
-        if 'instrument' in parameters and parameters['instrument'] == 'PromethION':
-            parameters['model'] = "r941_prom_high_g360"
+accessions_file_path = config["accs"]
+tickets = {}
+
+with open(accessions_file_path,'r') as f:
+    for line in f.readlines():
+        acc, instrument = line.strip().split()[:2]
+        tickets[acc] = {'model': "r941_prom_high_g360" if instrument == 'PromethION' else "r941_min_high_g360"}
 
 accessions = list(tickets.keys())
 
 rule all:
     input: expand("{acc}/{acc}.{product}",acc=accessions,product=products)
     shell: """
-ls {input}
+ls -l {input}
 """
 
 rule fastq_dump:
     output: "{acc}/{acc}.fq"
-    log: "LOGS/{acc}.fastq-dump.log"
+    log: "{acc}/LOGS/{acc}.fastq-dump.log"
     threads: 6
     shell: """
 if [[ ! -d {wildcards.acc} ]]; then mkdir {wildcards.acc}; fi
@@ -39,7 +46,7 @@ fastq-dump --stdout --accession {wildcards.acc} > {output} 2> {log}
 rule nano_filt:
     input: rules.fastq_dump.output
     output: "{acc}/{acc}.filtered_fq"
-    log: "LOGS/{acc}.filter.log"
+    log: "{acc}/LOGS/{acc}.filter.log"
     threads: 6
     shell: """
 cat {input} | NanoFilt -q 10 --headcrop 40 > {output} 2> {log} 
@@ -58,7 +65,7 @@ rule medaka_consensus_initial:
     output: consensus="{acc}/{acc}.initial.consensus.fa",gaps="{acc}/{acc}.initial.gaps.bed",
         bam="{acc}/{acc}.initial.ref.bam",bai="{acc}/{acc}.initial.ref.bam.bai",
     params: model=lambda wildcards: tickets[wildcards.acc]['model']
-    log: "LOGS/{acc}.initial.medaka-consensus.log"
+    log: "{acc}/LOGS/{acc}.initial.medaka-consensus.log"
     threads: 6
     shell: """
 medaka_consensus.sh \
@@ -78,7 +85,7 @@ rule medaka_consensus_final:
     output: consensus="{acc}/{acc}.final.consensus.fa",gaps="{acc}/{acc}.final.gaps.bed",
         bam="{acc}/{acc}.final.ref.bam",bai="{acc}/{acc}.final.ref.bam.bai",
     params: model=lambda wildcards: tickets[wildcards.acc]['model']
-    log: "LOGS/{acc}.final.medaka-consensus.log"
+    log: "{acc}/LOGS/{acc}.final.medaka-consensus.log"
     threads: 6
     shell: """
 medaka_consensus.sh \
@@ -149,7 +156,7 @@ cat {output.vcf}.no_header | grep -v ^# |cut -f1-8 >> {output.vcf}
 rule mpileup:
     input: bam=rules.medaka_consensus_initial.output.bam
     output: pileup="{acc}/{acc}.initial.ref.bam.pileup"
-    log: "LOGS/{acc}.mpileup.log"
+    log: "{acc}/LOGS/{acc}.mpileup.log"
     shell: """
 samtools mpileup \
     --min-MQ 0 --min-BQ 0 --count-orphans --no-output-ends --no-output-del --no-output-ins --ignore-overlaps -B \
@@ -228,7 +235,7 @@ fi
 rule spdi:
     input: rules.nano_annot.output.vcf
     output: vcf="{acc}/{acc}.ref.spdi.vcf", summary="{acc}/{acc}.ref.spdi.summary"
-    log: "LOGS/{acc}.spdi.log"
+    log: "{acc}/LOGS/{acc}.spdi.log"
     threads: 1
     shell: """
 python3 {toolbox_location}/rules/common/SPDI.py --r {config[ref]} --i {input} --o {output.vcf} --s {output.summary}

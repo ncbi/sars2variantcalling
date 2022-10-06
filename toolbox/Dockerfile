@@ -45,11 +45,22 @@ ARG samtoolsversion
 ARG sratoolsversion
 ARG reference
 
-RUN mkdir -p /pipelines/toolbox/bin /pipelines/toolbox/Scripts/
+COPY --from=build /usr/local/bin/ /usr/local/bin
+
+RUN mkdir -p /pipelines/toolbox/bin /pipelines/toolbox/Scripts/ /usr/local/snpEff /usr/local/trimmomatic
+
+### snpEff
+WORKDIR /usr/local/snpEff
+
+RUN curl -s -L -o snpEff_core.zip https://sourceforge.net/projects/snpeff/files/snpEff_v4_2_core.zip/download && \
+    unzip -qq snpEff_core.zip && rm -f snpEff_core.zip && mv snpEff 4.2
+
+### Trimmomatic
+WORKDIR /usr/local/trimmomatic
+RUN curl -s -L -o Trimmomatic-0.39.zip http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-0.39.zip && \
+    unzip Trimmomatic-0.39.zip && rm -f Trimmomatic-0.39.zip && mv Trimmomatic-0.39 0.39
 
 WORKDIR /opt
-
-COPY --from=build /usr/local/bin/ /usr/local/bin
 
 RUN apt-get update && apt-get install -qqy python2 wget curl gawk zip procps python3-pip bedtools cpanminus perl-doc vim default-jdk
 
@@ -70,10 +81,6 @@ RUN curl -s -L -o picard.jar https://github.com/broadinstitute/picard/releases/d
 RUN curl -s -L -o gatk-4.2.5.0.zip https://github.com/broadinstitute/gatk/releases/download/4.2.5.0/gatk-4.2.5.0.zip && \
     unzip gatk-4.2.5.0.zip && rm -f gatk-4.2.5.0.zip
 
-### Trimmomatic
-RUN curl -s -L -o Trimmomatic-0.39.zip http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-0.39.zip && \
-    unzip Trimmomatic-0.39.zip && rm -f Trimmomatic-0.39.zip
-
 ### Mash
 RUN curl -s -L -o mash-Linux64-v2.2.tar https://github.com/marbl/Mash/releases/download/v2.2/mash-Linux64-v2.2.tar && \
     tar xf mash-Linux64-v2.2.tar && rm -f mash-Linux64-v2.2.tar
@@ -89,9 +96,6 @@ RUN curl -s -L -o hisat2-2.2.1-Linux_x86_64.zip https://cloud.biohpc.swmed.edu/i
 ENV PATH=/opt/mash-Linux64-v2.2:/opt/minimap2-2.17_x64-linux:/opt/sratoolkit.${sratoolsversion}-ubuntu64/bin:/opt/gatk-4.2.5.0:/opt/hisat2-2.2.1:$PATH
 
 RUN PERL_MM_USE_DEFAULT=1; cpan JSON
-
-RUN curl -s -L -o snpEff_core.zip https://sourceforge.net/projects/snpeff/files/snpEff_v4_2_core.zip/download && \
-    unzip -qq snpEff_core.zip && rm -f snpEff_core.zip
 
 RUN curl -s -L -o vcftools_0.1.13.tar.gz https://sourceforge.net/projects/vcftools/files/vcftools_0.1.13.tar.gz/download && \
     tar xzf vcftools_0.1.13.tar.gz && rm -f vcftools_0.1.13.tar.gz && cd vcftools_0.1.13 && make
@@ -113,7 +117,6 @@ RUN curl -s -L -o Bio-SamTools-1.43.tar.gz https://cpan.metacpan.org/authors/id/
     cd Bio-SamTools-1.43 && chmod 600 INSTALL.pl && sed -i 's/sudo//g' INSTALL.pl && (echo y|perl INSTALL.pl)
 
 WORKDIR /pipelines/toolbox/
-#RUN gsutil -m cp -r gs://covid-tools-deployment/data/snpEff/* /static/reference/snpEff/
 
 COPY . /pipelines/toolbox/
 
@@ -128,7 +131,6 @@ RUN sed -i 's/python/python3/g' /usr/local/bin/medaka_consensus
 ENV HISAT2_HOME=/opt/hisat2-2.2.1 \
     PERL5LIB=/opt/vcftools_0.1.13/perl/ \
     LD_LIBRARY_PATH=/usr/local/lib \
-    PATH=/opt:/opt/vcftools_0.1.13/bin:$PATH \
-    PYTHONPATH=/pipelines
+    PATH=/opt:/opt/vcftools_0.1.13/bin:/usr/local/snpEff/4.2/scripts:$PATH
 
 WORKDIR /pipelines/toolbox

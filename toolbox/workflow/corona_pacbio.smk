@@ -1,24 +1,28 @@
 import sys
 import os
 
+configfile: "common.config.yaml"
+
 args = sys.argv
 toolbox_location = os.path.dirname(os.path.dirname(args[args.index("-s") + 1]))
 
-ref = config["ref"]
-snpeff_config=config["snpeff_config"]
+workdir: config["workdir"]
+
+ref = os.path.join(config["codedir"],config["ref"])
+snpeff_config=os.path.join(config["codedir"],config["snpeff_config"])
 vcfEffOnePerLine=config["vcfEffOnePerLine"]
 vcf_validator=config["vcf_validator"]
 snpEff=config["snpEff"]
-snpsift=config["snpsift"]
-gatk=config["gatk"]
+snpSift=config["snpSift"]
 
-accessions_file_path = 'accs'
+accessions_file_path = config["accs"]
+
 products = ["fastq", "trimmed.fastq", "bam_stats", "bam_genomecov",
             "bam_avg_std_depth", "bam_gaps", "missmatch", "ref.depth", "ref.snp_eff.tsv", "ref.snpeff.vcf",
             "vcfvalidate.done"]
 
 with open(accessions_file_path,'r') as f:
-    accessions = [line.strip() for line in f.readlines()]
+    accessions = [line.strip().split()[0] for line in f.readlines()]
 
 rule all:
     input: expand("{acc}/{acc}.{product}",acc=accessions,product=products)
@@ -114,7 +118,7 @@ rule call:
     threads: 6
     shell: """
 
-{gatk} HaplotypeCaller -R {ref} -I {input.bam} -O {output.gvcf} \
+gatk HaplotypeCaller -R {ref} -I {input.bam} -O {output.gvcf} \
     --ploidy 1 --minimum-mapping-quality 30 --min-base-quality-score 20
 """
 
@@ -130,7 +134,7 @@ rule filter_variants:
     output: "{acc}/{acc}.ref.filtered.vcf"
     log: "LOGS/{acc}.filter_variants.log"
     shell: """
-{gatk} VariantFiltration \\
+gatk VariantFiltration \\
     -R {ref} \\
     -V {input} \\
     -O {output} \\
@@ -167,13 +171,13 @@ rule spdi:
     log: "LOGS/{acc}.spdi.log"
     threads: 1
     shell: """
-python3 {toolbox_location}/rules/common/SPDI.py --r {ref} --i {input} --o {output.vcf} --s {output.summary}
+python3 {toolbox_location}/Scripts/SPDI.py --r {ref} --i {input} --o {output.vcf} --s {output.summary}
 """
 
 rule snpeff:
     input: rules.spdi.output.vcf
     output: "{acc}/{acc}.ref.snpeff.vcf"
-    log: "LOGS/{acc}.snpeff.log"
+    log: "{acc}/LOGS/{acc}.snpeff.log"
     threads: 1
     shell: """
 {snpEff} ann \\
@@ -188,7 +192,7 @@ rule tsv:
     shell: """
 cat {input} | \\
 {vcfEffOnePerLine} | \\
-{snpsift} \\
+{snpSift} \\
     extractFields - -s "," -e "." \\
     CHROM POS REF ALT \\
     "GEN[0].DP" "GEN[0].AD[1]" \\
@@ -198,7 +202,7 @@ cat {input} | \\
 rule vcfValidate:
     input: snpvcf = rules.snpeff.output
     output: touch("{acc}/{acc}.vcfvalidate.done")
-    log: "LOGS/{acc}.vcf_validate.log"
+    log: "{acc}/LOGS/{acc}.vcf_validate.log"
     threads: 1
     shell: """
     {vcf_validator} -i {input.snpvcf} 2>{log}
