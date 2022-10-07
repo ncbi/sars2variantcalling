@@ -15,6 +15,7 @@ vcf_validator=config["vcf_validator"]
 trimmomatic_jar=config["trimmomatic"]
 snpEff=config["snpEff"]
 snpSift=config["snpSift"]
+picard=config["picard"]
 
 accessions_file_path = config["accs"]
 
@@ -79,7 +80,7 @@ tmpbam=$(mktemp {wildcards.acc}.XXX.bam)
 	samtools view -Sb -F256 - | \\
 	samtools sort - > $tmpbam) 2>{log.hisat2_log} > {output.bam}
 
-picard AddOrReplaceReadGroups \\
+{picard} AddOrReplaceReadGroups \\
     I=$tmpbam O={output.bam} \\
     RGID=1 RGPl=Illumina RGPU=NA RGSM={wildcards.acc} RGLB=NA >&{log.picard_log}
 samtools index {output.bam}

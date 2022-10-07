@@ -1,5 +1,5 @@
-ARG samtoolsversion=1.12
-ARG sratoolsversion=2.11.0
+ARG samtoolsversion=1.14
+ARG sratoolsversion=3.0.0
 ARG reference=NC_045512.2
 
 FROM python:3.7 as final
@@ -46,6 +46,7 @@ ARG sratoolsversion
 ARG reference
 
 COPY --from=build /usr/local/bin/ /usr/local/bin
+COPY --from=build /usr/local/lib/*mummer* /usr/local/lib/
 
 RUN mkdir -p /pipelines/toolbox/bin /pipelines/toolbox/Scripts/ /usr/local/snpEff /usr/local/trimmomatic
 
@@ -62,7 +63,7 @@ RUN curl -s -L -o Trimmomatic-0.39.zip http://www.usadellab.org/cms/uploads/supp
 
 WORKDIR /opt
 
-RUN apt-get update && apt-get install -qqy python2 wget curl gawk zip procps python3-pip bedtools cpanminus perl-doc vim default-jdk
+RUN apt-get update && apt-get install -qqy python2 wget curl gawk zip procps python3-pip bedtools cpanminus perl-doc vim default-jdk efetch snakemake
 
 ### minimap2, The MIT License
 RUN curl -s -L -o minimap2-2.17_x64-linux.tar.bz2 https://github.com/lh3/minimap2/releases/download/v2.17/minimap2-2.17_x64-linux.tar.bz2 && \
@@ -88,7 +89,7 @@ RUN curl -s -L -o mash-Linux64-v2.2.tar https://github.com/marbl/Mash/releases/d
 RUN python3 -m pip install --upgrade pip==22.2.2
 RUN pip3 install Cython protobuf==3.20.0 \
                  jsonpickle pyOpenSSL \
-                 biopython nanofilt medaka snakemake
+                 biopython nanofilt medaka
 
 RUN curl -s -L -o hisat2-2.2.1-Linux_x86_64.zip https://cloud.biohpc.swmed.edu/index.php/s/oTtGWbWjaxsQ2Ho/download && \
     unzip -qq hisat2-2.2.1-Linux_x86_64.zip && rm -f hisat2-2.2.1-Linux_x86_64.zip
@@ -101,10 +102,10 @@ RUN curl -s -L -o vcftools_0.1.13.tar.gz https://sourceforge.net/projects/vcftoo
     tar xzf vcftools_0.1.13.tar.gz && rm -f vcftools_0.1.13.tar.gz && cd vcftools_0.1.13 && make
 
 RUN curl -s -L -o mummer2vcf.py https://raw.githubusercontent.com/MatteoSchiavinato/Utilities/master/my-mummer-2-vcf.py && \
-    mv mummer2vcf.py /pipelines/toolbox/Scripts/
+    chmod u+x mummer2vcf.py && mv mummer2vcf.py /pipelines/toolbox/Scripts/
 
 RUN curl -s -L -o vcf_validator_linux https://github.com/EBIvariation/vcf-validator/releases/download/v0.9.4/vcf_validator_linux && \
-    chmod a+x vcf_validator_linux
+    chmod u+x vcf_validator_linux
 
 RUN ln -s /bin/bash /usr/bin/bash
 RUN ln -s /usr/bin/python2 /usr/bin/python
@@ -123,7 +124,7 @@ COPY . /pipelines/toolbox/
 RUN gatk CreateSequenceDictionary -R /pipelines/toolbox/static/reference/${reference}.fa && \
     samtools faidx /pipelines/toolbox/static/reference/${reference}.fa && \
     gatk IndexFeatureFile --input /pipelines/toolbox/static/reference/${reference}.known_sites.vcf && \
-    hisat2-build /pipelines/toolbox/static/reference/${reference}.fa /pipelines/toolbox/static/reference/${reference}.fa.index
+    hisat2-build /pipelines/toolbox/static/reference/${reference}.fa /pipelines/toolbox/static/reference/${reference}.fa
 
 RUN medaka tools download_models --model r941_prom_high_g360 r941_min_high_g360
 RUN sed -i 's/python/python3/g' /usr/local/bin/medaka_consensus
@@ -131,6 +132,6 @@ RUN sed -i 's/python/python3/g' /usr/local/bin/medaka_consensus
 ENV HISAT2_HOME=/opt/hisat2-2.2.1 \
     PERL5LIB=/opt/vcftools_0.1.13/perl/ \
     LD_LIBRARY_PATH=/usr/local/lib \
-    PATH=/opt:/opt/vcftools_0.1.13/bin:/usr/local/snpEff/4.2/scripts:$PATH
+    PATH=/opt:/opt/vcftools_0.1.13/bin:/usr/local/snpEff/4.2/scripts:/pipelines/toolbox/Scripts:$PATH
 
-WORKDIR /pipelines/toolbox
+WORKDIR /pipelines/toolbox/workflow

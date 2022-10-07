@@ -12,6 +12,7 @@ snpEff: java -Xms1g -Xmx4g -jar /usr/local/snpEff/4.2/snpEff.jar
 vcfEffOnePerLine: vcfEffOnePerLine.pl
 vcf_validator: vcf_validator_linux
 snpEff2tsv: Scripts/snpEff2tsv.sh
+picard: picard
 
 # illumina
 # ont

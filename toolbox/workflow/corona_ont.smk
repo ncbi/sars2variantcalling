@@ -55,7 +55,7 @@ cat {input} | NanoFilt -q 10 --headcrop 40 > {output} 2> {log}
 
 def medaka_consensus_ref(wildcards):
     if {wildcards.stage} == 'initial':
-        return config[ref]
+        return ref
     else:
         return f"{wildcards.acc}/{wildcards.acc}.final.consensus.fa"
 
@@ -65,13 +65,13 @@ rule medaka_consensus_initial:
     output: consensus="{acc}/{acc}.initial.consensus.fa",gaps="{acc}/{acc}.initial.gaps.bed",
         bam="{acc}/{acc}.initial.ref.bam",bai="{acc}/{acc}.initial.ref.bam.bai",
     params: model=lambda wildcards: tickets[wildcards.acc]['model']
-    log: "{acc}/LOGS/{acc}.initial.medaka-consensus.log"
+    log: "LOGS/{acc}.initial.medaka-consensus.log"
     threads: 6
     shell: """
 medaka_consensus.sh \
     {input.fq} \
     {wildcards.acc} \
-    {config[ref]} \
+    {ref} \
     {params.model} \
     initial \
     NC_045512.2 \
@@ -85,7 +85,7 @@ rule medaka_consensus_final:
     output: consensus="{acc}/{acc}.final.consensus.fa",gaps="{acc}/{acc}.final.gaps.bed",
         bam="{acc}/{acc}.final.ref.bam",bai="{acc}/{acc}.final.ref.bam.bai",
     params: model=lambda wildcards: tickets[wildcards.acc]['model']
-    log: "{acc}/LOGS/{acc}.final.medaka-consensus.log"
+    log: "LOGS/{acc}.final.medaka-consensus.log"
     threads: 6
     shell: """
 medaka_consensus.sh \
@@ -105,7 +105,7 @@ rule consensus_analysis:
     output: avg_depth="{acc}/{acc}.initial.avg_depth",genomecov="{acc}/{acc}.initial.genomecov",
         total_gaps="{acc}/{acc}.initial.total.gaps",mean_stddev_gaps="{acc}/{acc}.initial.mean_stddev_gaps"
     shell: """
-depth_avg_stddev=$( bedtools genomecov -ibam {input.bam} -g {config[ref]} -d | awk '{{sum+=$3; sumsq+=$3*$3}} END {{print sum/NR, sqrt(sumsq/NR - (sum/NR)**2)}}' )
+depth_avg_stddev=$( bedtools genomecov -ibam {input.bam} -g {ref} -d | awk '{{sum+=$3; sumsq+=$3*$3}} END {{print sum/NR, sqrt(sumsq/NR - (sum/NR)**2)}}' )
 echo ${{depth_avg_stddev}} > {output.avg_depth}
 
 total_gaps=$( awk '{{sum += ($3-$2+1) }} END {{print sum}}' {input.bed} ) 
@@ -113,7 +113,7 @@ total_gaps=$( awk '{{sum += ($3-$2+1) }} END {{print sum}}' {input.bed} )
 
 echo ${{total_gaps}} > {output.total_gaps}
  
-bedtools genomecov -ibam {input.bam} -g {config[ref]} -bga > {output.genomecov}
+bedtools genomecov -ibam {input.bam} -g {ref} -bga > {output.genomecov}
 
 echo -n "${{depth_avg_stddev}} ${{total_gaps}}" > {output.mean_stddev_gaps}
 """
@@ -123,7 +123,7 @@ rule nucmer:
     output: delta="{acc}/{acc}.mummer.delta"
     params: prefix=lambda wildcards: wildcards.acc
     shell: """
-nucmer --prefix={params.prefix} {config[ref]} {input.consensus}
+nucmer --prefix={params.prefix} {ref} {input.consensus}
 if [[ "{params.prefix}.delta" != "{output.delta}" ]]; then 
     mv {params.prefix}.delta {output.delta} 
 fi
@@ -141,7 +141,7 @@ rule mummer2vcf:
     output: vcf="{acc}/{acc}.delta.snps.vcf"
     shell: """
 mummer2vcf.py \
-    -s {input.snps} --input-header -t ALL -g {config[ref]} > {output.vcf}.no_header 
+    -s {input.snps} --input-header -t ALL -g {ref} > {output.vcf}.no_header 
 
 cat <<EOF > {output.vcf}
 ##fileformat=VCFv4.1
@@ -160,7 +160,7 @@ rule mpileup:
     shell: """
 samtools mpileup \
     --min-MQ 0 --min-BQ 0 --count-orphans --no-output-ends --no-output-del --no-output-ins --ignore-overlaps -B \
-    --fasta-ref {config[ref]} \
+    --fasta-ref {ref} \
     {input.bam} > {output.pileup}
 """
 
@@ -238,7 +238,7 @@ rule spdi:
     log: "{acc}/LOGS/{acc}.spdi.log"
     threads: 1
     shell: """
-python3 {toolbox_location}/rules/common/SPDI.py --r {config[ref]} --i {input} --o {output.vcf} --s {output.summary}
+python3 {toolbox_location}/Scripts/SPDI.py --r {ref} --i {input} --o {output.vcf} --s {output.summary}
 """
 
 rule snpeff:
