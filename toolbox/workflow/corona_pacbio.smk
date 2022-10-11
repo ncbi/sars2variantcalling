@@ -1,7 +1,7 @@
 import sys
 import os
 
-configfile: "common.config.yaml"
+configfile: os.path.join(config["codedir"], "workflow", "common.config.yaml")
 
 args = sys.argv
 toolbox_location = os.path.dirname(os.path.dirname(args[args.index("-s") + 1]))

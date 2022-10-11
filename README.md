@@ -39,15 +39,15 @@ Results are available via following NCBI resources:
 #### Usage examples:
 1) ILLUMINA 
    ```bash
-   toolbox/workflows/run.sh --accession SRR21830388
+   toolbox/workflow/run.sh --accession SRR21830388
    # in case of using docker image
-   toolbox/workflows/run.sh --accession SRR21830388 --conf extra.config.yaml 
+   /pipelines/toolbox/workflow/run.sh --accession SRR21830388 --conf /pipelines/toolbox/workflow/extra.config.yaml 
    ```
 2) OXFORD-NANOPORE
    ```bash
-   toolbox/workflows/run.sh SRR15965069 --platform ont --instrument GridION
+   toolbox/workflow/run.sh SRR15965069 --platform ont --instrument GridION
    ```
 3) PacBio
    ```bash
-   toolbox/workflows/run.sh SRR15965069 --platform pacbio
+   toolbox/workflow/run.sh SRR14895419 --platform pacbio
    ```
