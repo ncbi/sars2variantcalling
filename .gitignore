@@ -12,6 +12,11 @@
 *.tar
 *.rar
 *.zip
+*.dict
+*.fai
+*.ht2
+*.idx
+workdir/
 /core.*
 /db.ini
 /aws-nih-sra-datastore-protected.cfg
