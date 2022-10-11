@@ -27,7 +27,7 @@ cat <<EOF
     --list:       file with accession list, optional, either --accession or --list must be specified
                   NOTE: ONT file list is expected to have two columns <acc> <instrument>
     --conf:       optional custom configfile to override default
-    --workdir:    optional workinf directory, default = $workdir
+    --workdir:    optional working directory, default = $workdir
     --help:       to display this help
 EOF
     exit 1
