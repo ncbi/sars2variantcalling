@@ -73,9 +73,9 @@ hisat2-build toolbox/static/reference/NC_045512.2.fa toolbox/static/reference/NC
    ```
 2) OXFORD-NANOPORE
    ```bash
-   toolbox/workflow/run.sh SRR15965069 --platform ont --instrument GridION
+   toolbox/workflow/run.sh --accession SRR15965069 --platform ont --instrument GridION
    ```
 3) PacBio
    ```bash
-   toolbox/workflow/run.sh SRR14895419 --platform pacbio
+   toolbox/workflow/run.sh --accession SRR14895419 --platform pacbio
    ```
