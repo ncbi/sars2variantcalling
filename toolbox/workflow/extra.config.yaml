@@ -1,0 +1,2 @@
+# to reflect picard setup in the docker container
+picard: java -jar /opt/picard.jar
