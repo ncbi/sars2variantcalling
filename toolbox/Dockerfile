@@ -82,10 +82,6 @@ RUN curl -s -L -o picard.jar https://github.com/broadinstitute/picard/releases/d
 RUN curl -s -L -o gatk-4.2.5.0.zip https://github.com/broadinstitute/gatk/releases/download/4.2.5.0/gatk-4.2.5.0.zip && \
     unzip gatk-4.2.5.0.zip && rm -f gatk-4.2.5.0.zip
 
-### Mash
-RUN curl -s -L -o mash-Linux64-v2.2.tar https://github.com/marbl/Mash/releases/download/v2.2/mash-Linux64-v2.2.tar && \
-    tar xf mash-Linux64-v2.2.tar && rm -f mash-Linux64-v2.2.tar
-
 RUN python3 -m pip install --upgrade pip==22.2.2
 RUN pip3 install Cython protobuf==3.20.0 \
                  jsonpickle pyOpenSSL \
@@ -94,7 +90,7 @@ RUN pip3 install Cython protobuf==3.20.0 \
 RUN curl -s -L -o hisat2-2.2.1-Linux_x86_64.zip https://cloud.biohpc.swmed.edu/index.php/s/oTtGWbWjaxsQ2Ho/download && \
     unzip -qq hisat2-2.2.1-Linux_x86_64.zip && rm -f hisat2-2.2.1-Linux_x86_64.zip
 
-ENV PATH=/opt/mash-Linux64-v2.2:/opt/minimap2-2.17_x64-linux:/opt/sratoolkit.${sratoolsversion}-ubuntu64/bin:/opt/gatk-4.2.5.0:/opt/hisat2-2.2.1:$PATH
+ENV PATH=/opt/minimap2-2.17_x64-linux:/opt/sratoolkit.${sratoolsversion}-ubuntu64/bin:/opt/gatk-4.2.5.0:/opt/hisat2-2.2.1:$PATH
 
 RUN PERL_MM_USE_DEFAULT=1; cpan JSON
 

@@ -3,7 +3,7 @@
 progdir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 progname=$0
 
-platforms=":illumina:ont:pacbio:genbank:"
+platforms=":illumina:ont:pacbio:"
 platform=illumina
 instrument=PromethION
 accession=
