@@ -36,7 +36,6 @@ Following third party tools assumed to be installed in user environment:
 * [SRA-toolkit](https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/3.0.0/)
 * [Picard](https://github.com/broadinstitute/picard)
 * [GATK](https://github.com/broadinstitute/gatk)
-* [Mash](https://github.com/marbl/Mash)
 * [medaka](https://github.com/nanoporetech/medaka)
 * hisat2
 * [vcftools](https://sourceforge.net/projects/vcftools/files/vcftools_0.1.13.tar.gz/download)
