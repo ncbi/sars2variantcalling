@@ -74,6 +74,7 @@ RUN curl -s -L -o sratoolkit.${sratoolsversion}-ubuntu64.tar.gz https://ftp-trac
     tar xf sratoolkit.${sratoolsversion}-ubuntu64.tar.gz
 
 COPY Dockerfile.user-settings.mkfg /root/.ncbi/user-settings.mkfg
+RUN apt-get install uuid-runtime; printf '/LIBS/IMAGE_GUID = "%s"\n' `uuidgen` >> /root/.ncbi/user-settings.mkfg
 
 ### Picard
 RUN curl -s -L -o picard.jar https://github.com/broadinstitute/picard/releases/download/2.23.9/picard.jar
