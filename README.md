@@ -3,9 +3,6 @@
 ### Contact:
 email: sra@ncbi.nlm.nih.gov
 
-### Change Log
-Please check the [CHANGES.md](CHANGES.md) file for change history.
-
 ----
 
 ## The SRA-B SARS COV2 virus variations pipeline 
