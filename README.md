@@ -6,7 +6,7 @@ email: sra@ncbi.nlm.nih.gov
 ----
 
 ## NCBI SARS-CoV-2 Variant Calling (SC2VC) Pipeline
-NCBI SARS-CoV-2 Variant Calling (SC2VC) pipeline is a collection of [snakemake](https://snakemake.readthedocs.io/en/stable/) workflows.
+The NCBI SARS-CoV-2 Variant Calling (SC2VC) Pipeline is a collection of [snakemake](https://snakemake.readthedocs.io/en/stable/) workflows that allows calling high-confidence variants from SARS-CoV-2 NGS data in a standardized format.
 An overview for the pipeline is available [here](https://www.ncbi.nlm.nih.gov/sra/docs/sars-cov-2-variant-calling/).
 
 
