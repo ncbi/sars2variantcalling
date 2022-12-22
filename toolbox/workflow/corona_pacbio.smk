@@ -36,8 +36,9 @@ rule fastq_dump:
     threads: 6
     shell: """
 if [[ ! -d {wildcards.acc} ]]; then mkdir {wildcards.acc}; fi
-fasterq-dump --outdir {wildcards.acc} --threads {threads} {wildcards.acc} &> {log}
-touch {output}
+
+fastq-dump --stdout --accession {wildcards.acc} > {output} 2> {log}
+
 """
 
 rule trimmed:

@@ -1,5 +1,5 @@
 ARG samtoolsversion=1.14
-ARG sratoolsversion=3.0.0
+ARG sratoolsversion=3.0.1
 ARG reference=NC_045512.2
 
 FROM python:3.7 as final
