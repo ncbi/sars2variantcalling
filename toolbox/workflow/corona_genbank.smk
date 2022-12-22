@@ -1,7 +1,10 @@
 import sys
 import os
 
-configfile: "common.config.yaml"
+
+
+
+configfile: "toolbox/workflow/common.config.yaml"
 
 args = sys.argv
 toolbox_location = os.path.dirname(os.path.dirname(args[args.index("-s") + 1]))
@@ -16,7 +19,7 @@ snpEff=config["snpEff"]
 accessions_file_path = config["accs"]
 
 products = ["fa", "ref.bam", "ref.bam.bai", "ref.mpileup", "vcf",
-            "annotated.vcf", "snpEff_summary.html", "snpEff_summary.genes.txt", "tsv"]
+            "annotated.vcf", "snpEff_summary.html", "snpEff_summary.genes.txt", "tsv", "depth.bin"]
 
 with open(accessions_file_path,'r') as f:
     accessions = [line.strip().split()[0] for line in f.readlines()]
@@ -83,7 +86,7 @@ rule snpeff:
     log: "{acc}/LOGS/{acc}.snpeff.log"
     shell: """
     {snpEff} ann -nodownload -canon -formatEff -classic -no-upstream -no-downstream \
-    -c {snpeff_config} sars2_mp -v {input} > {output.annoVCF} \
+    -c {snpeff_config} sars2 -v {input} > {output.annoVCF} \
     -s {wildcards.acc}/{wildcards.acc}.snpEff_summary.html 2> {log}
     """
 
@@ -93,3 +96,12 @@ rule to_tsv:
     log: "{acc}/LOGS/{acc}.tsv.log"
     shell: """ cat {input} | {snpEff2tsv} > {output.tsv} 2> {log}
     """
+
+rule depth2bin:
+    input: rules.align.output.bam
+    output: "{acc}/{acc}.depth.bin", temp("{acc}/{acc}.depths")
+    shell:
+        """ 
+            samtools depth -a {input}  > {wildcards.acc}/{wildcards.acc}.depths
+            python {toolbox_location}/Scripts/depth2bins.py --i {wildcards.acc}/{wildcards.acc}.depths --o {wildcards.acc}/{wildcards.acc}.depth.bin
+        """
