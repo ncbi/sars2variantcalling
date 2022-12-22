@@ -1,20 +1,17 @@
-# The NCBI SRA-B (Sequence Read Archive Bioinformatics)
+# NCBI SARS-CoV-2 Variant Calling (SC2VC) Pipeline
 
 ### Contact:
 email: sra@ncbi.nlm.nih.gov
 
-### Change Log
-Please check the [CHANGES.md](CHANGES.md) file for change history.
-
 ----
 
-## The SRA-B SARS COV2 virus variations pipeline 
-The NCBI SARS COV2 virus variations pipeline is a collection of [snakemake](https://snakemake.readthedocs.io/en/stable/) workflows.
-See their overview [here](https://www.ncbi.nlm.nih.gov/sra/docs/sars-cov-2-variant-calling/).
+The NCBI SARS-CoV-2 Variant Calling (SC2VC) Pipeline is a collection of [snakemake](https://snakemake.readthedocs.io/en/stable/) workflows that allows calling high-confidence variants from SARS-CoV-2 NGS data in a standardized format.
+An overview for the pipeline is available [here](https://www.ncbi.nlm.nih.gov/sra/docs/sars-cov-2-variant-calling/).
 
-Results are available via following NCBI resources:
-1) [NCBI SARS2-COV-2](https://www.ncbi.nlm.nih.gov/sars-cov-2/)
-2) [Weekly ACTIV-TRACE reports](https://ftp.ncbi.nlm.nih.gov/pub/ACTIV-TRACE/) 
+
+Results are available via following NCBI resources: [NCBI SARS-COV-2](https://registry.opendata.aws/ncbi-covid-19/)
+
+Also, available as: [Weekly ACTIV-TRACE reports](https://ftp.ncbi.nlm.nih.gov/pub/ACTIV-TRACE/) 
 
 #### Content:
  * Wrapper script to run workflow: 
@@ -36,7 +33,6 @@ Following third party tools assumed to be installed in user environment:
 * [SRA-toolkit](https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/3.0.0/)
 * [Picard](https://github.com/broadinstitute/picard)
 * [GATK](https://github.com/broadinstitute/gatk)
-* [Mash](https://github.com/marbl/Mash)
 * [medaka](https://github.com/nanoporetech/medaka)
 * hisat2
 * [vcftools](https://sourceforge.net/projects/vcftools/files/vcftools_0.1.13.tar.gz/download)
