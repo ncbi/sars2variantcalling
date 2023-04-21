@@ -9,7 +9,7 @@ The NCBI SARS-CoV-2 Variant Calling (SC2VC) Pipeline is a collection of [snakema
 An overview for the pipeline is available [here](https://www.ncbi.nlm.nih.gov/sra/docs/sars-cov-2-variant-calling/).
 
 
-Results are available via following NCBI resources: [NCBI SARS-COV-2](https://registry.opendata.aws/ncbi-covid-19/)
+Results are available via following NCBI resources: [NCBI SARS-COV-2 at AWS](https://registry.opendata.aws/ncbi-covid-19/), [NCBI SARS-COV-2 at GCP](https://console.cloud.google.com/marketplace/product/national-library-of-medicine/ncbi-covid-data?project=ncbi-sra-virus-variation-prod)
 
 Also, available as: [Weekly ACTIV-TRACE reports](https://ftp.ncbi.nlm.nih.gov/pub/ACTIV-TRACE/) 
 
